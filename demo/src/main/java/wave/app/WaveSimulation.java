@@ -3,6 +3,8 @@ package wave.app;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -22,18 +24,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class WaveSimulation extends Application {
 
     private Pane mapPane;
+    private Canvas gridCanvas;
     private List<WaveSource> sources = new ArrayList<>();
     private ConcurrentLinkedQueue<WaveFront> waveFronts = new ConcurrentLinkedQueue<>();
     private List<WaveFront> wavesToRemove = new ArrayList<>();
     private List<Wall> walls = new ArrayList<>();
 
+    private int gridSize = 20;
     // Wave parameters
     private double waveSpeed = 2.0;
-    private double reflectionCoeff = 0.7; // 70% reflects
-    private double transmissionCoeff = 0.3; // 30% passes through
+    //private double reflectionCoeff = 0.7; // 70% reflects
+    //private double transmissionCoeff = 0.3; // 30% passes through
 
     // Wall drawing mode
     private boolean wallDrawingMode = false;
+    private boolean canYouAddDots = false;
 
     // wall type stuff, can be moved to a better place i think but im checking if it
     // works first lmao
@@ -49,6 +54,8 @@ public class WaveSimulation extends Application {
         mapPane = new Pane();
         mapPane.setStyle("-fx-background-color: #1a1a1a;");
         mapPane.setPrefSize(800, 600);
+
+        drawGrid();
 
         // Create some sample walls
         createSampleWalls();
@@ -81,7 +88,7 @@ public class WaveSimulation extends Application {
     }
 
     private VBox createControls() {
-        VBox controls = new VBox(15);
+        VBox controls = new VBox(10);
         controls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
         controls.setPrefWidth(280); // Slightly wider for new controls
 
@@ -150,12 +157,18 @@ public class WaveSimulation extends Application {
             transmitValueLabel.setVisible(isCustom);
         });
 
-        // Wall mode toggle button (updated)
+        // initialize buttons wallmode and dot mode
         Button wallModeBtn = new Button("Enter Wall Mode");
+        Button addDotsButton = new Button("Add wave source");
+
+        // Wall mode toggle button functionality (updated)
         wallModeBtn.setMaxWidth(Double.MAX_VALUE);
         wallModeBtn.setOnAction(e -> {
             wallDrawingMode = !wallDrawingMode;
             if (wallDrawingMode) {
+                if (canYouAddDots) {
+                    addDotsButton.fire();
+                }
                 wallModeBtn.setText("Exit Wall Mode");
                 mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
                 enableWallDrawing();
@@ -166,6 +179,21 @@ public class WaveSimulation extends Application {
                 mapPane.setOnMouseDragged(null);
                 mapPane.setOnMouseReleased(null);
                 mapPane.setOnMouseClicked(this::handleMapClick);
+            }
+        });
+
+        // add dots button functionality
+        addDotsButton.setMaxWidth(Double.MAX_VALUE);
+        addDotsButton.setOnAction(e -> {
+            canYouAddDots = !canYouAddDots;
+            if (canYouAddDots) {
+                if (wallDrawingMode) {
+                    wallModeBtn.fire();
+                }
+                addDotsButton.setText("Exit wave source mode");
+                mapPane.setOnMouseClicked(this::handleMapClick);
+            } else {
+                addDotsButton.setText("Enter wave source mode");
             }
         });
 
@@ -189,6 +217,7 @@ public class WaveSimulation extends Application {
             walls.clear();
             Platform.runLater(() -> {
                 mapPane.getChildren().clear();
+                drawGrid();
                 createSampleWalls();
             });
         });
@@ -202,6 +231,7 @@ public class WaveSimulation extends Application {
             walls.clear();
             Platform.runLater(() -> {
                 mapPane.getChildren().clear();
+                drawGrid();
             });
         });
 
@@ -216,6 +246,7 @@ public class WaveSimulation extends Application {
                 transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
                 wallModeBtn,
+                addDotsButton,
                 clearBtn,
                 resetBtn,
                 fullReset);
@@ -223,12 +254,50 @@ public class WaveSimulation extends Application {
         return controls;
     }
 
+    private void drawGrid() {
+        // Create canvas once during setup
+        gridCanvas = new Canvas();
+        mapPane.getChildren().add(gridCanvas);
+
+        // Bind size
+        gridCanvas.widthProperty().bind(mapPane.widthProperty());
+        gridCanvas.heightProperty().bind(mapPane.heightProperty());
+
+        // Add resize listeners
+        gridCanvas.widthProperty().addListener((obs, oldVal, newVal) -> redrawGrid());
+        gridCanvas.heightProperty().addListener((obs, oldVal, newVal) -> redrawGrid());
+
+        // Initial draw
+        redrawGrid();
+    }
+
+    private void redrawGrid() {
+        if (gridCanvas == null)
+            return;
+
+        GraphicsContext gc = gridCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, gridCanvas.getWidth(), gridCanvas.getHeight());
+
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.setLineWidth(0.1);
+
+        double width = gridCanvas.getWidth();
+        double height = gridCanvas.getHeight();
+
+        for (int x = 0; x <= width; x += gridSize) {
+            gc.strokeLine(x, 0, x, height);
+        }
+        for (int y = 0; y <= height; y += gridSize) {
+            gc.strokeLine(0, y, width, y);
+        }
+    }
+
     private void enableWallDrawing() {
         final double[] startPoint = new double[2];
 
         mapPane.setOnMousePressed(e -> {
-            startPoint[0] = e.getX();
-            startPoint[1] = e.getY();
+            startPoint[0] = Math.round((float) e.getX() / gridSize) * gridSize;
+            startPoint[1] = Math.round((float) e.getY() / gridSize) * gridSize;
         });
 
         mapPane.setOnMouseReleased(e -> {
@@ -236,13 +305,15 @@ public class WaveSimulation extends Application {
 
             if (selectedType == WallType.CUSTOM) {
                 // Use custom slider values
-                addWall(startPoint[0], startPoint[1], e.getX(), e.getY(),
+                addWall(startPoint[0], startPoint[1], Math.round((float) e.getX() / gridSize) * gridSize,
+                        Math.round((float) e.getY() / gridSize) * gridSize,
                         selectedType,
                         customReflectionSlider.getValue(),
                         customTransmissionSlider.getValue());
             } else {
                 // Use default values for the selected type
-                addWall(startPoint[0], startPoint[1], e.getX(), e.getY(), selectedType);
+                addWall(startPoint[0], startPoint[1], Math.round((float) e.getX() / gridSize) * gridSize,
+                        Math.round((float) e.getY() / gridSize) * gridSize, selectedType);
             }
         });
     }
@@ -344,7 +415,7 @@ public class WaveSimulation extends Application {
     }
 
     private void handleMapClick(javafx.scene.input.MouseEvent e) {
-        if (!wallDrawingMode) {
+        if (canYouAddDots && !wallDrawingMode) {
             addWaveSource(e.getX(), e.getY(), Color.GREEN);
         }
     }
@@ -497,59 +568,6 @@ public class WaveSimulation extends Application {
             }
         });
     }
-
-    /*
-     * // Inner classes
-     * class WaveSource {
-     * double x, y;
-     * int emitRate = 5; // Emit wave every 5 frames
-     * int frameCounter = 0;
-     * 
-     * WaveSource(double x, double y) {
-     * this.x = x;
-     * this.y = y;
-     * }
-     * }
-     * 
-     * class WaveFront {
-     * double x, y;
-     * double angle;
-     * int age = 0;
-     * double amplitude;
-     * int generation; // Track number of reflections
-     * 
-     * WaveFront(double x, double y, double angle, double amplitude, int generation)
-     * {
-     * this.x = x;
-     * this.y = y;
-     * this.angle = angle;
-     * this.amplitude = amplitude;
-     * this.generation = generation;
-     * }
-     * }
-     * 
-     * class Wall {
-     * double x1, y1, x2, y2;
-     * double normalX, normalY;
-     * double length;
-     * 
-     * Wall(double x1, double y1, double x2, double y2) {
-     * this.x1 = x1;
-     * this.y1 = y1;
-     * this.x2 = x2;
-     * this.y2 = y2;
-     * 
-     * // Calculate wall vector and normal
-     * double dx = x2 - x1;
-     * double dy = y2 - y1;
-     * this.length = Math.sqrt(dx * dx + dy * dy);
-     * 
-     * // Normal vector (perpendicular to wall)
-     * this.normalX = -dy / length;
-     * this.normalY = dx / length;
-     * }
-     * }
-     */
 
     public static void main(String[] args) {
         launch(args);
