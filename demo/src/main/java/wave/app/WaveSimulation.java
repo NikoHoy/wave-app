@@ -391,6 +391,7 @@ public class WaveSimulation extends Application {
         dot.setFill(color);
         dot.setStroke(Color.WHITE);
         dot.setStrokeWidth(2);
+        dot.setViewOrder(-1);
 
         // Make draggable
         makeDraggable(dot, source);
@@ -517,10 +518,13 @@ public class WaveSimulation extends Application {
         double wallReflection = wall.getReflectionCoeff();
         double wallTransmission = wall.getTransmissionCoeff();
 
+        double offset = 3.01;
+
         // Create reflected wave
-        if (wallReflection > 0 && wave.generation < 3) {
+        if (wallReflection > 0 && wave.generation < 5) {
             waveFronts.add(new WaveFront(
-                    wave.x, wave.y,
+                    wave.x + reflectX * offset, 
+                    wave.y + reflectY * offset,
                     reflectAngle,
                     wave.amplitude * wallReflection,
                     wave.generation + 1));
@@ -529,7 +533,8 @@ public class WaveSimulation extends Application {
         // Create transmitted wave
         if (wallTransmission > 0) {
             waveFronts.add(new WaveFront(
-                    wave.x, wave.y,
+                    wave.x + dx * offset, 
+                    wave.y + dy * offset,
                     wave.angle,
                     wave.amplitude * wallTransmission,
                     wave.generation + 1));
@@ -537,7 +542,7 @@ public class WaveSimulation extends Application {
     }
 
     private void renderWaves() {
-        // This runs on the animation thread, so we need Platform.runLater for UI
+        // This runs on the animation thread, so we need Platform.runLater for UI 
         // updates
         Platform.runLater(() -> {
             // Remove old wave circles
