@@ -3,11 +3,11 @@ package wave.app;
 import javafx.scene.paint.Color;
 
 public enum WallType {
-    SOLID("Solid Wall", 0.9, 0.1, Color.WHITE),
-    WATER("Water", 0.2, 0.8, Color.CYAN),
-    GLASS("Glass", 0.3, 0.7, Color.LIGHTBLUE),
-    ABSORBER("Absorber", 0.1, 0.0, Color.DARKGRAY),
-    MIRROR("Mirror", 1.0, 0.0, Color.YELLOW),
+    SOLID("drywall", 0.95, 0.3, Color.WHITE),
+    CONCRETE("concrete", 0.97, 0.1, Color.DARKGRAY),
+    BRICK("Brick", 0.97, 0.1, Color.RED),
+    ABSORBER("Absorber", 0.1, 0.0, Color.DARKGREEN),
+    WOOD("Wood", 0.95, 0.2, Color.BROWN),
     CUSTOM("Custom", 0.5, 0.5, Color.MAGENTA);
     
     private final String displayName;
