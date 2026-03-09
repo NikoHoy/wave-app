@@ -3,8 +3,8 @@ package wave.app;
 import javafx.scene.paint.Color;
 
 public enum WallType {
-    SOLID("drywall", 0.95, 0.3, Color.WHITE),
-    CONCRETE("concrete", 0.97, 0.1, Color.DARKGRAY),
+    DRYWALL("Drywall", 0.95, 0.3, Color.WHITE),
+    CONCRETE("Concrete", 0.97, 0.1, Color.DARKGRAY),
     BRICK("Brick", 0.97, 0.1, Color.RED),
     ABSORBER("Absorber", 0.1, 0.0, Color.DARKGREEN),
     WOOD("Wood", 0.95, 0.2, Color.BROWN),
