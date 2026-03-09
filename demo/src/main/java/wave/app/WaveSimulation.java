@@ -406,9 +406,9 @@ public class WaveSimulation extends Application {
     private void createSampleWalls() {
         // Create different types of walls
         addWall(200, 100, 200, 500, WallType.SOLID); // Solid wall (white)
-        addWall(600, 100, 600, 500, WallType.GLASS); // Glass (light blue)
-        addWall(100, 300, 700, 300, WallType.WATER); // Water (cyan)
-        addWall(400, 200, 400, 400, WallType.MIRROR); // Mirror (yellow)
+        addWall(600, 100, 600, 500, WallType.CONCRETE); // Glass (light blue)
+        addWall(100, 300, 700, 300, WallType.BRICK); // Water (cyan)
+        addWall(400, 200, 400, 400, WallType.WOOD); // Mirror (yellow)
         addWall(100, 500, 300, 300, WallType.ABSORBER); // Absorber (dark gray)
 
         // Add a custom wall with specific values
