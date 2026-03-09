@@ -9,6 +9,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -62,6 +66,17 @@ public class WaveSimulation extends Application {
 
         // Create control panel
         VBox controls = createControls();
+        VBox soundControls = createWaveControls();
+
+        Tab wallControls = new Tab("Wall controls", controls);
+        wallControls.setClosable(false);
+
+        TabPane tabs = new TabPane();
+        tabs.getTabs().add(wallControls);
+
+        Tab waveSourceTab = new Tab("Wave source controls", soundControls);
+        waveSourceTab.setClosable(false);
+        tabs.getTabs().add(waveSourceTab);
 
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
@@ -69,7 +84,7 @@ public class WaveSimulation extends Application {
         // Layout
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
-        root.setRight(controls);
+        root.setRight(tabs);
 
         // Animation loop
         AnimationTimer timer = new AnimationTimer() {
@@ -85,6 +100,28 @@ public class WaveSimulation extends Application {
         primaryStage.setTitle("Wave Simulation");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private VBox createWaveControls() {
+        VBox waveControls = new VBox(10);
+        waveControls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
+        waveControls.setPrefWidth(280);
+
+        Label title = new Label("Wave Controls");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
+
+        //Image arrowImage = new Image("demo/src/main/java/wave/app/red-sticker-arrow-4.png");
+        Image arrowImage = new Image(getClass().getResourceAsStream("red-sticker-arrow-4.png"), 100, 100, true, true);
+        ImageView imageView = new ImageView(arrowImage);
+
+        Slider rotationSlider = new Slider(0, 360, 0);
+        rotationSlider.setShowTickLabels(true);
+        rotationSlider.setShowTickMarks(true);
+        imageView.rotateProperty().bind(rotationSlider.valueProperty());
+
+        waveControls.getChildren().addAll(title, rotationSlider, imageView);
+
+        return waveControls;
     }
 
     private VBox createControls() {
