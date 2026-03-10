@@ -137,7 +137,7 @@ public class WaveSimulation extends Application {
         controls.setPrefWidth(280); // Slightly wider for new controls
 
         // Title
-        Label title = new Label("Wave Controls");
+        Label title = new Label("Wall Controls");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
         // Wave speed slider (existing code)
