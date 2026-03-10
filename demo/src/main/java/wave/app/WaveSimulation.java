@@ -23,6 +23,7 @@ import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WaveSimulation extends Application {
@@ -33,8 +34,8 @@ public class WaveSimulation extends Application {
     private ConcurrentLinkedQueue<WaveFront> waveFronts = new ConcurrentLinkedQueue<>();
     private List<WaveFront> wavesToRemove = new ArrayList<>();
     private List<Wall> walls = new ArrayList<>();
-
-    private int gridSize = 20;
+    //private Stack<Object> addedElementsStack = new Stack<>();
+    private int gridSize = 30;
     // Wave parameters
     private double waveSpeed = 2.0;
     //private double reflectionCoeff = 0.7; // 70% reflects
@@ -46,11 +47,14 @@ public class WaveSimulation extends Application {
 
     // wall type stuff, can be moved to a better place i think but im checking if it
     // works first lmao
-    private WallType currentWallType = WallType.SOLID;
+    private WallType currentWallType = WallType.DRYWALL;
     private ComboBox<WallType> wallTypeCombo;
     private Slider customReflectionSlider;
     private Slider customTransmissionSlider;
     private Label customValuesLabel;
+    private int currentEmitAngle;
+
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -114,10 +118,13 @@ public class WaveSimulation extends Application {
         Image arrowImage = new Image(getClass().getResourceAsStream("red-sticker-arrow-4.png"), 100, 100, true, true);
         ImageView imageView = new ImageView(arrowImage);
 
-        Slider rotationSlider = new Slider(0, 360, 0);
+        Slider rotationSlider = new Slider(0, 72, 0);
         rotationSlider.setShowTickLabels(true);
         rotationSlider.setShowTickMarks(true);
-        imageView.rotateProperty().bind(rotationSlider.valueProperty());
+        imageView.rotateProperty().bind(rotationSlider.valueProperty().multiply(5));
+        rotationSlider.valueProperty().addListener((obs, old, val) ->{
+            currentEmitAngle= val.intValue();
+        });
 
         waveControls.getChildren().addAll(title, rotationSlider, imageView);
 
@@ -150,7 +157,7 @@ public class WaveSimulation extends Application {
 
         wallTypeCombo = new ComboBox<>();
         wallTypeCombo.getItems().addAll(WallType.values());
-        wallTypeCombo.setValue(WallType.SOLID);
+        wallTypeCombo.setValue(WallType.DRYWALL);
         wallTypeCombo.setMaxWidth(Double.MAX_VALUE);
         wallTypeCombo.setStyle("-fx-background-color: #444; -fx-text-fill: white;");
 
@@ -245,6 +252,29 @@ public class WaveSimulation extends Application {
             });
         });
 
+        //undo
+//        Button undoBtn = new Button("undo last element");
+//        undoBtn.setMaxWidth(Double.MAX_VALUE);
+//        undoBtn.setOnAction(e -> {
+//            if(!addedElementsStack.isEmpty()) {
+//                Object elementToRemove = addedElementsStack.pop();
+//                if (elementToRemove.getClass().toString().equals("WaveSource")) {
+//                    sources.removeLast();
+//                    waveFronts.clear();
+//                }
+//                else if (elementToRemove.getClass().toString().equals("Wall")) {
+//                    walls.removeLast();
+//                }
+//
+//                Platform.runLater(() -> {
+//
+//
+//
+//                });
+//            }
+//        });
+
+
         // Reset button
         Button resetBtn = new Button("Reset Simulation");
         resetBtn.setMaxWidth(Double.MAX_VALUE);
@@ -259,8 +289,9 @@ public class WaveSimulation extends Application {
             });
         });
 
+
         // Full reset button
-        Button fullReset = new Button("Full Reset Everything");
+        Button fullReset = new Button("Remove all elements");
         fullReset.setMaxWidth(Double.MAX_VALUE);
         fullReset.setOnAction(e -> {
             waveFronts.clear();
@@ -359,6 +390,7 @@ public class WaveSimulation extends Application {
     private void addWall(double x1, double y1, double x2, double y2, WallType type) {
         Wall wall = new Wall(x1, y1, x2, y2, type);
         walls.add(wall);
+        //addedElementsStack.add(wall);
 
         // Visual representation with type-specific color
         Line line = new Line(x1, y1, x2, y2);
@@ -383,6 +415,7 @@ public class WaveSimulation extends Application {
             WallType type, double reflection, double transmission) {
         Wall wall = new Wall(x1, y1, x2, y2, type, reflection, transmission);
         walls.add(wall);
+        //addedElementsStack.add(wall);
 
         // Visual representation
         Line line = new Line(x1, y1, x2, y2);
@@ -405,7 +438,7 @@ public class WaveSimulation extends Application {
 
     private void createSampleWalls() {
         // Create different types of walls
-        addWall(200, 100, 200, 500, WallType.SOLID); // Solid wall (white)
+        addWall(200, 100, 200, 500, WallType.DRYWALL); // Solid wall (white)
         addWall(600, 100, 600, 500, WallType.CONCRETE); // Glass (light blue)
         addWall(100, 300, 700, 300, WallType.BRICK); // Water (cyan)
         addWall(400, 200, 400, 400, WallType.WOOD); // Mirror (yellow)
@@ -420,8 +453,9 @@ public class WaveSimulation extends Application {
     }
 
     private void addWaveSource(double x, double y, Color color) {
-        WaveSource source = new WaveSource(x, y);
+        WaveSource source = new WaveSource(x, y, currentEmitAngle);
         sources.add(source);
+        //addedElementsStack.add(source);
 
         // Visual dot
         Circle dot = new Circle(x, y, 8);
@@ -460,6 +494,7 @@ public class WaveSimulation extends Application {
 
     private void updateWaves() {
         // Create new wave fronts from sources
+
         for (WaveSource source : sources) {
             source.frameCounter++;
             if (source.frameCounter >= source.emitRate) {
@@ -467,7 +502,7 @@ public class WaveSimulation extends Application {
 
                 // Emit waves in multiple directions for more realistic effect
                 // was this: for (int i = 0; i < 36; i++) {
-                for (int i = 0; i < 72; i++) {
+                for (int i = source.emitAngle-12; i < source.emitAngle+12; i++) {
                     double angle = (i * 5) * Math.PI / 180; // was: double angle = (i * 10) * Math.PI / 180;
                     // Directly add to concurrent queue - safe!
                     waveFronts.add(new WaveFront(
