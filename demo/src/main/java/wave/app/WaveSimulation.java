@@ -34,7 +34,7 @@ public class WaveSimulation extends Application {
     private ConcurrentLinkedQueue<WaveFront> waveFronts = new ConcurrentLinkedQueue<>();
     private List<WaveFront> wavesToRemove = new ArrayList<>();
     private List<Wall> walls = new ArrayList<>();
-    //private Stack<Object> addedElementsStack = new Stack<>();
+    private Stack<Object> addedElementsStack = new Stack<>();
     private int gridSize = 30;
     // Wave parameters
     private double waveSpeed = 2.0;
@@ -69,10 +69,15 @@ public class WaveSimulation extends Application {
         createSampleWalls();
 
         // Create control panel
+        VBox rightPanel= new VBox();
+
+
         VBox controls = createControls();
         VBox soundControls = createWaveControls();
 
-        Tab wallControls = new Tab("Wall controls", controls);
+        VBox wallControlPanel= createWallPanel();
+
+        Tab wallControls = new Tab("Wall controls", wallControlPanel);
         wallControls.setClosable(false);
 
         TabPane tabs = new TabPane();
@@ -88,8 +93,9 @@ public class WaveSimulation extends Application {
         // Layout
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
-        root.setRight(tabs);
 
+        rightPanel.getChildren().addAll(tabs,controls);
+        root.setRight(rightPanel);
         // Animation loop
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -131,8 +137,11 @@ public class WaveSimulation extends Application {
         return waveControls;
     }
 
-    private VBox createControls() {
+    private VBox createWallPanel(){
+
+
         VBox controls = new VBox(10);
+
         controls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
         controls.setPrefWidth(280); // Slightly wider for new controls
 
@@ -140,18 +149,6 @@ public class WaveSimulation extends Application {
         Label title = new Label("Wall Controls");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
-        // Wave speed slider (existing code)
-        Label speedLabel = new Label("Wave Speed: 2.0");
-        speedLabel.setStyle("-fx-text-fill: white;");
-        Slider speedSlider = new Slider(0.5, 5.0, 2.0);
-        speedSlider.setShowTickLabels(true);
-        speedSlider.setShowTickMarks(true);
-        speedSlider.valueProperty().addListener((obs, old, val) -> {
-            waveSpeed = val.doubleValue();
-            speedLabel.setText(String.format("Wave Speed: %.1f", waveSpeed));
-        });
-
-        // === NEW: Wall Type Selection ===
         Label wallTypeLabel = new Label("Wall Type:");
         wallTypeLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
@@ -200,6 +197,38 @@ public class WaveSimulation extends Application {
             reflectValueLabel.setVisible(isCustom);
             transmitValueLabel.setVisible(isCustom);
         });
+
+        controls.getChildren().addAll(
+                title,
+                new Label(" "),
+                new Label(" "),
+                wallTypeLabel, wallTypeCombo,
+                customValuesLabel,
+                reflectValueLabel, customReflectionSlider,
+                transmitValueLabel, customTransmissionSlider,
+                new Label(" "));
+
+        return controls;
+    }
+
+    private VBox createControls() {
+        VBox controls = new VBox(10);
+        controls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
+        controls.setPrefWidth(280); // Slightly wider for new controls
+
+
+        // Wave speed slider (existing code)
+        Label speedLabel = new Label("Wave Speed: 2.0");
+        speedLabel.setStyle("-fx-text-fill: white;");
+        Slider speedSlider = new Slider(0.5, 5.0, 2.0);
+        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickMarks(true);
+        speedSlider.valueProperty().addListener((obs, old, val) -> {
+            waveSpeed = val.doubleValue();
+            speedLabel.setText(String.format("Wave Speed: %.1f", waveSpeed));
+        });
+
+
 
         // initialize buttons wallmode and dot mode
         Button wallModeBtn = new Button("Enter Wall Mode");
@@ -253,26 +282,27 @@ public class WaveSimulation extends Application {
         });
 
         //undo
-//        Button undoBtn = new Button("undo last element");
-//        undoBtn.setMaxWidth(Double.MAX_VALUE);
-//        undoBtn.setOnAction(e -> {
-//            if(!addedElementsStack.isEmpty()) {
-//                Object elementToRemove = addedElementsStack.pop();
-//                if (elementToRemove.getClass().toString().equals("WaveSource")) {
-//                    sources.removeLast();
-//                    waveFronts.clear();
-//                }
-//                else if (elementToRemove.getClass().toString().equals("Wall")) {
-//                    walls.removeLast();
-//                }
-//
-//                Platform.runLater(() -> {
-//
-//
-//
-//                });
-//            }
-//        });
+        Button undoBtn = new Button("undo last element");
+        undoBtn.setMaxWidth(Double.MAX_VALUE);
+        undoBtn.setOnAction(e -> {
+            if(!addedElementsStack.isEmpty()) {
+                Object elementToRemove = addedElementsStack.pop();
+                if (elementToRemove.getClass().toString().equals("WaveSource")) {
+                    sources.removeLast();
+                    waveFronts.clear();
+                }
+                else if (elementToRemove.getClass().toString().equals("Wall")) {
+                    walls.removeLast();
+                }
+
+                Platform.runLater(() -> {
+                    mapPane.getChildren().clear();
+                    redrawAll();
+
+
+                });
+            }
+        });
 
 
         // Reset button
@@ -304,22 +334,44 @@ public class WaveSimulation extends Application {
         });
 
         controls.getChildren().addAll(
-                title,
                 new Label(" "),
                 speedLabel, speedSlider,
                 new Label(" "),
-                wallTypeLabel, wallTypeCombo,
-                customValuesLabel,
-                reflectValueLabel, customReflectionSlider,
-                transmitValueLabel, customTransmissionSlider,
+                //wallTypeLabel, wallTypeCombo,
+                //customValuesLabel,
+                //reflectValueLabel, customReflectionSlider,
+                //transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
                 wallModeBtn,
                 addDotsButton,
                 clearBtn,
                 resetBtn,
-                fullReset);
+                fullReset,
+                undoBtn);
 
         return controls;
+    }
+    private void redrawAll(){
+        redrawGrid();
+        for(Object element:addedElementsStack){
+            if(!addedElementsStack.isEmpty()) {
+                if (element.getClass().toString().equals("WaveSource")) {
+                    WaveSource addSource=(WaveSource) element;
+                    addWaveSource(addSource.x, addSource.y, Color.GREEN);
+                }
+                else if (element.getClass().toString().equals("Wall")) {
+                    Wall addWall=(Wall) element;
+                    addWall(addWall.x1, addWall.y1, addWall.x2, addWall.y2,addWall.type);
+                }
+
+                Platform.runLater(() -> {
+
+
+
+                });
+            }
+        }
+
     }
 
     private void drawGrid() {
