@@ -38,8 +38,8 @@ public class WaveSimulation extends Application {
     private int gridSize = 30;
     // Wave parameters
     private double waveSpeed = 2.0;
-    //private double reflectionCoeff = 0.7; // 70% reflects
-    //private double transmissionCoeff = 0.3; // 30% passes through
+    // private double reflectionCoeff = 0.7; // 70% reflects
+    // private double transmissionCoeff = 0.3; // 30% passes through
 
     // Wall drawing mode
     private boolean wallDrawingMode = false;
@@ -54,8 +54,6 @@ public class WaveSimulation extends Application {
     private Label customValuesLabel;
     private int currentEmitAngle;
 
-
-
     @Override
     public void start(Stage primaryStage) {
         // Main map pane
@@ -69,13 +67,12 @@ public class WaveSimulation extends Application {
         createSampleWalls();
 
         // Create control panel
-        VBox rightPanel= new VBox();
-
+        VBox rightPanel = new VBox();
 
         VBox controls = createControls();
         VBox soundControls = createWaveControls();
 
-        VBox wallControlPanel= createWallPanel();
+        VBox wallControlPanel = createWallPanel();
 
         Tab wallControls = new Tab("Wall controls", wallControlPanel);
         wallControls.setClosable(false);
@@ -94,7 +91,7 @@ public class WaveSimulation extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
 
-        rightPanel.getChildren().addAll(tabs,controls);
+        rightPanel.getChildren().addAll(tabs, controls);
         root.setRight(rightPanel);
         // Animation loop
         AnimationTimer timer = new AnimationTimer() {
@@ -106,7 +103,7 @@ public class WaveSimulation extends Application {
         };
         timer.start();
 
-        Scene scene = new Scene(root, 1000, 700);
+        Scene scene = new Scene(root, 1000, 800);
         primaryStage.setTitle("Wave Simulation");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -120,7 +117,8 @@ public class WaveSimulation extends Application {
         Label title = new Label("Wave Controls");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
-        //Image arrowImage = new Image("demo/src/main/java/wave/app/red-sticker-arrow-4.png");
+        // Image arrowImage = new
+        // Image("demo/src/main/java/wave/app/red-sticker-arrow-4.png");
         Image arrowImage = new Image(getClass().getResourceAsStream("red-sticker-arrow-4.png"), 100, 100, true, true);
         ImageView imageView = new ImageView(arrowImage);
 
@@ -128,8 +126,8 @@ public class WaveSimulation extends Application {
         rotationSlider.setShowTickLabels(true);
         rotationSlider.setShowTickMarks(true);
         imageView.rotateProperty().bind(rotationSlider.valueProperty().multiply(5));
-        rotationSlider.valueProperty().addListener((obs, old, val) ->{
-            currentEmitAngle= val.intValue();
+        rotationSlider.valueProperty().addListener((obs, old, val) -> {
+            currentEmitAngle = val.intValue();
         });
 
         waveControls.getChildren().addAll(title, rotationSlider, imageView);
@@ -137,8 +135,7 @@ public class WaveSimulation extends Application {
         return waveControls;
     }
 
-    private VBox createWallPanel(){
-
+    private VBox createWallPanel() {
 
         VBox controls = new VBox(10);
 
@@ -216,7 +213,6 @@ public class WaveSimulation extends Application {
         controls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
         controls.setPrefWidth(280); // Slightly wider for new controls
 
-
         // Wave speed slider (existing code)
         Label speedLabel = new Label("Wave Speed: 2.0");
         speedLabel.setStyle("-fx-text-fill: white;");
@@ -228,10 +224,8 @@ public class WaveSimulation extends Application {
             speedLabel.setText(String.format("Wave Speed: %.1f", waveSpeed));
         });
 
-
-
         // initialize buttons wallmode and dot mode
-        Button wallModeBtn = new Button("Enter Wall Mode");
+        Button wallModeBtn = new Button("Add Wall mode");
         Button addDotsButton = new Button("Add wave source");
 
         // Wall mode toggle button functionality (updated)
@@ -281,29 +275,53 @@ public class WaveSimulation extends Application {
             });
         });
 
-        //undo
+        // undo
+        // Button undoBtn = new Button("undo last element");
+        // undoBtn.setMaxWidth(Double.MAX_VALUE);
+        // undoBtn.setOnAction(e -> {
+        // if(!addedElementsStack.isEmpty()) {
+        // Object elementToRemove = addedElementsStack.pop();
+        // if (elementToRemove.getClass().toString().equals("WaveSource")) {
+        // sources.removeLast();
+        // waveFronts.clear();
+        // }
+        // else if (elementToRemove.getClass().toString().equals("Wall")) {
+        // walls.removeLast();
+        // }
+
+        // Platform.runLater(() -> {
+        // mapPane.getChildren().clear();
+        // redrawAll();
+
+        // });
+        // }
+        // });
+        //nyt tuo poistaa aina äänilähteet ekana ja sitte vasta seinät 
         Button undoBtn = new Button("undo last element");
         undoBtn.setMaxWidth(Double.MAX_VALUE);
         undoBtn.setOnAction(e -> {
-            if(!addedElementsStack.isEmpty()) {
-                Object elementToRemove = addedElementsStack.pop();
-                if (elementToRemove.getClass().toString().equals("WaveSource")) {
-                    sources.removeLast();
-                    waveFronts.clear();
-                }
-                else if (elementToRemove.getClass().toString().equals("Wall")) {
-                    walls.removeLast();
-                }
+            System.out.println(sources);
+            System.out.println(walls);
 
-                Platform.runLater(() -> {
-                    mapPane.getChildren().clear();
-                    redrawAll();
-
-
-                });
-            }
+                    if (sources.size() > 0) {
+                        sources.remove(sources.size()-1);
+                        waveFronts.clear();
+                        mapPane.getChildren().removeLast();
+                        redrawAll();
+                        return;
+                    }
+                    if (walls.size() > 0) {
+                        walls.remove(walls.size()-1);
+                        mapPane.getChildren().removeLast();
+                        mapPane.getChildren().removeLast();
+                        redrawAll();
+                        return;
+                    }
+                
+                mapPane.getChildren().clear();
+                drawGrid();
+            
         });
-
 
         // Reset button
         Button resetBtn = new Button("Reset Simulation");
@@ -318,7 +336,6 @@ public class WaveSimulation extends Application {
                 createSampleWalls();
             });
         });
-
 
         // Full reset button
         Button fullReset = new Button("Remove all elements");
@@ -337,10 +354,10 @@ public class WaveSimulation extends Application {
                 new Label(" "),
                 speedLabel, speedSlider,
                 new Label(" "),
-                //wallTypeLabel, wallTypeCombo,
-                //customValuesLabel,
-                //reflectValueLabel, customReflectionSlider,
-                //transmitValueLabel, customTransmissionSlider,
+                // wallTypeLabel, wallTypeCombo,
+                // customValuesLabel,
+                // reflectValueLabel, customReflectionSlider,
+                // transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
                 wallModeBtn,
                 addDotsButton,
@@ -351,22 +368,20 @@ public class WaveSimulation extends Application {
 
         return controls;
     }
-    private void redrawAll(){
+
+    private void redrawAll() {
         redrawGrid();
-        for(Object element:addedElementsStack){
-            if(!addedElementsStack.isEmpty()) {
+        for (Object element : addedElementsStack) {
+            if (!addedElementsStack.isEmpty()) {
                 if (element.getClass().toString().equals("WaveSource")) {
-                    WaveSource addSource=(WaveSource) element;
+                    WaveSource addSource = (WaveSource) element;
                     addWaveSource(addSource.x, addSource.y, Color.GREEN);
-                }
-                else if (element.getClass().toString().equals("Wall")) {
-                    Wall addWall=(Wall) element;
-                    addWall(addWall.x1, addWall.y1, addWall.x2, addWall.y2,addWall.type);
+                } else if (element.getClass().toString().equals("Wall")) {
+                    Wall addWall = (Wall) element;
+                    addWall(addWall.x1, addWall.y1, addWall.x2, addWall.y2, addWall.type);
                 }
 
                 Platform.runLater(() -> {
-
-
 
                 });
             }
@@ -442,7 +457,7 @@ public class WaveSimulation extends Application {
     private void addWall(double x1, double y1, double x2, double y2, WallType type) {
         Wall wall = new Wall(x1, y1, x2, y2, type);
         walls.add(wall);
-        //addedElementsStack.add(wall);
+        // addedElementsStack.add(wall);
 
         // Visual representation with type-specific color
         Line line = new Line(x1, y1, x2, y2);
@@ -467,7 +482,7 @@ public class WaveSimulation extends Application {
             WallType type, double reflection, double transmission) {
         Wall wall = new Wall(x1, y1, x2, y2, type, reflection, transmission);
         walls.add(wall);
-        //addedElementsStack.add(wall);
+        // addedElementsStack.add(wall);
 
         // Visual representation
         Line line = new Line(x1, y1, x2, y2);
@@ -507,7 +522,7 @@ public class WaveSimulation extends Application {
     private void addWaveSource(double x, double y, Color color) {
         WaveSource source = new WaveSource(x, y, currentEmitAngle);
         sources.add(source);
-        //addedElementsStack.add(source);
+        // addedElementsStack.add(source);
 
         // Visual dot
         Circle dot = new Circle(x, y, 8);
@@ -554,7 +569,7 @@ public class WaveSimulation extends Application {
 
                 // Emit waves in multiple directions for more realistic effect
                 // was this: for (int i = 0; i < 36; i++) {
-                for (int i = source.emitAngle-12; i < source.emitAngle+12; i++) {
+                for (int i = source.emitAngle - 12; i < source.emitAngle + 12; i++) {
                     double angle = (i * 5) * Math.PI / 180; // was: double angle = (i * 10) * Math.PI / 180;
                     // Directly add to concurrent queue - safe!
                     waveFronts.add(new WaveFront(
@@ -647,7 +662,7 @@ public class WaveSimulation extends Application {
         // Create reflected wave
         if (wallReflection > 0 && wave.generation < 5) {
             waveFronts.add(new WaveFront(
-                    wave.x + reflectX * offset, 
+                    wave.x + reflectX * offset,
                     wave.y + reflectY * offset,
                     reflectAngle,
                     wave.amplitude * wallReflection,
@@ -657,7 +672,7 @@ public class WaveSimulation extends Application {
         // Create transmitted wave
         if (wallTransmission > 0) {
             waveFronts.add(new WaveFront(
-                    wave.x + dx * offset, 
+                    wave.x + dx * offset,
                     wave.y + dy * offset,
                     wave.angle,
                     wave.amplitude * wallTransmission,
@@ -666,7 +681,7 @@ public class WaveSimulation extends Application {
     }
 
     private void renderWaves() {
-        // This runs on the animation thread, so we need Platform.runLater for UI 
+        // This runs on the animation thread, so we need Platform.runLater for UI
         // updates
         Platform.runLater(() -> {
             // Remove old wave circles
