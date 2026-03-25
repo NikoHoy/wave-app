@@ -16,9 +16,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
 import java.util.ArrayList;
@@ -44,6 +46,7 @@ public class WaveSimulation extends Application {
     // Wall drawing mode
     private boolean wallDrawingMode = false;
     private boolean canYouAddDots = false;
+    private boolean isMusicPlayerOn = false;
 
     // wall type stuff, can be moved to a better place i think but im checking if it
     // works first lmao
@@ -53,6 +56,8 @@ public class WaveSimulation extends Application {
     private Slider customTransmissionSlider;
     private Label customValuesLabel;
     private int currentEmitAngle;
+
+    private ImageView iv = new ImageView();
 
     @Override
     public void start(Stage primaryStage) {
@@ -83,6 +88,10 @@ public class WaveSimulation extends Application {
         Tab waveSourceTab = new Tab("Wave source controls", soundControls);
         waveSourceTab.setClosable(false);
         tabs.getTabs().add(waveSourceTab);
+
+        // Loading and playing audio
+        // MusicPlayer.playSong();
+        // MusicPlayer.setVolume(0.4);
 
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
@@ -275,52 +284,31 @@ public class WaveSimulation extends Application {
             });
         });
 
-        // undo
-        // Button undoBtn = new Button("undo last element");
-        // undoBtn.setMaxWidth(Double.MAX_VALUE);
-        // undoBtn.setOnAction(e -> {
-        // if(!addedElementsStack.isEmpty()) {
-        // Object elementToRemove = addedElementsStack.pop();
-        // if (elementToRemove.getClass().toString().equals("WaveSource")) {
-        // sources.removeLast();
-        // waveFronts.clear();
-        // }
-        // else if (elementToRemove.getClass().toString().equals("Wall")) {
-        // walls.removeLast();
-        // }
-
-        // Platform.runLater(() -> {
-        // mapPane.getChildren().clear();
-        // redrawAll();
-
-        // });
-        // }
-        // });
-        //nyt tuo poistaa aina äänilähteet ekana ja sitte vasta seinät 
+        // nyt tuo poistaa aina äänilähteet ekana ja sitte vasta seinät
         Button undoBtn = new Button("undo last element");
         undoBtn.setMaxWidth(Double.MAX_VALUE);
         undoBtn.setOnAction(e -> {
             System.out.println(sources);
             System.out.println(walls);
 
-                    if (sources.size() > 0) {
-                        sources.remove(sources.size()-1);
-                        waveFronts.clear();
-                        mapPane.getChildren().removeLast();
-                        redrawAll();
-                        return;
-                    }
-                    if (walls.size() > 0) {
-                        walls.remove(walls.size()-1);
-                        mapPane.getChildren().removeLast();
-                        mapPane.getChildren().removeLast();
-                        redrawAll();
-                        return;
-                    }
-                
-                mapPane.getChildren().clear();
-                drawGrid();
-            
+            if (sources.size() > 0) {
+                sources.remove(sources.size() - 1);
+                waveFronts.clear();
+                mapPane.getChildren().removeLast();
+                redrawAll();
+                return;
+            }
+            if (walls.size() > 0) {
+                walls.remove(walls.size() - 1);
+                mapPane.getChildren().removeLast();
+                mapPane.getChildren().removeLast();
+                redrawAll();
+                return;
+            }
+
+            mapPane.getChildren().clear();
+            drawGrid();
+
         });
 
         // Reset button
@@ -350,6 +338,38 @@ public class WaveSimulation extends Application {
             });
         });
 
+        Button checkMusicLoudness = new Button("Check volume level");
+        checkMusicLoudness.setMaxWidth(Double.MAX_VALUE);
+        checkMusicLoudness.setOnAction(e -> {
+            isMusicPlayerOn = !isMusicPlayerOn;
+            if (isMusicPlayerOn) {
+                MusicPlayer.playSong();
+                MusicPlayer.setVolume(0.4);
+            }
+            if (!isMusicPlayerOn) {
+                MusicPlayer.stopSong();
+            }
+            mapPane.setOnMouseClicked(event -> {
+                double clickX = event.getX();
+                double clickY = event.getY();
+                double volume = volumeClick(clickX, clickY);
+                // System.out.println(volume);
+                Image userImage = new Image(getClass().getResourceAsStream("user.jpg"), 20, 20, true, true);
+                iv.setImage(userImage);
+
+                iv.setLayoutX(clickX);
+                iv.setLayoutY(clickY);
+                if(!mapPane.getChildren().contains(iv)){
+                    mapPane.getChildren().add(iv);
+                }
+
+                MusicPlayer.setVolume(volume);
+                //System.out.println(volume);
+            }
+
+            );
+        });
+
         controls.getChildren().addAll(
                 new Label(" "),
                 speedLabel, speedSlider,
@@ -361,12 +381,49 @@ public class WaveSimulation extends Application {
                 new Label(" "),
                 wallModeBtn,
                 addDotsButton,
+                checkMusicLoudness,
                 clearBtn,
                 resetBtn,
                 fullReset,
                 undoBtn);
 
         return controls;
+    }
+
+    private double volumeClick(double clickX, double clickY) {
+        WaveFront closestWave = getClosestWave(clickX, clickY);
+        double amplitude = 0;
+
+        if (closestWave != null) {
+            amplitude = closestWave.amplitude;
+        }
+        return amplitude;
+    }
+
+    private WaveFront getClosestWave(double x, double y) {
+        WaveFront closest = null;
+        double minDistance = 300;
+        double radius = 20;
+
+        for (WaveFront wave : waveFronts) {
+            double dx = wave.x - x;
+            double dy = wave.y - y;
+            double distanceSq = dx * dx + dy * dy;
+
+            if(distanceSq <= radius * radius){
+                if(closest == null || wave.amplitude > closest.amplitude){
+                    closest = wave;
+                    minDistance = distanceSq;
+                }
+            }
+
+
+            // if (distanceSq < minDistance) {
+            //     minDistance = distanceSq;
+            //     closest = wave;
+            // }
+        }
+        return closest;
     }
 
     private void redrawAll() {

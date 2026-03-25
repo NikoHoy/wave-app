@@ -1,6 +1,6 @@
 package wave.app;
 
-import wave.app.WallType;
+//import wave.app.WallType;
 import javafx.scene.paint.Color;
 
 public class Wall {
