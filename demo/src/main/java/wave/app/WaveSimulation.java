@@ -14,6 +14,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
@@ -56,6 +57,7 @@ public class WaveSimulation extends Application {
     private Slider customTransmissionSlider;
     private Label customValuesLabel;
     private int currentEmitAngle;
+    private double chosenAmplitude=1;
 
     private ImageView iv = new ImageView();
 
@@ -79,13 +81,13 @@ public class WaveSimulation extends Application {
 
         VBox wallControlPanel = createWallPanel();
 
-        Tab wallControls = new Tab("Wall controls", wallControlPanel);
+        Tab wallControls = new Tab("Wall options", wallControlPanel);
         wallControls.setClosable(false);
 
         TabPane tabs = new TabPane();
         tabs.getTabs().add(wallControls);
 
-        Tab waveSourceTab = new Tab("Wave source controls", soundControls);
+        Tab waveSourceTab = new Tab("Wave source options", soundControls);
         waveSourceTab.setClosable(false);
         tabs.getTabs().add(waveSourceTab);
 
@@ -123,7 +125,7 @@ public class WaveSimulation extends Application {
         waveControls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
         waveControls.setPrefWidth(280);
 
-        Label title = new Label("Wave Controls");
+        Label title = new Label("Speaker direction");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
         // Image arrowImage = new
@@ -139,7 +141,30 @@ public class WaveSimulation extends Application {
             currentEmitAngle = val.intValue();
         });
 
-        waveControls.getChildren().addAll(title, rotationSlider, imageView);
+        Label speakerLabel = new Label("Speaker amplitude");
+        speakerLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
+
+        VBox speakertypes= new VBox(10);
+        Button btn1=new Button("speaker 0.3");
+        Button btn2=new Button("speaker 1");
+        Button btn3=new Button("speaker 3.0");
+        btn1.setOnAction(e -> {
+            chosenAmplitude=0.3;
+        });
+        btn2.setOnAction(e -> {
+            chosenAmplitude=1;
+        });
+        btn3.setOnAction(e -> {
+            chosenAmplitude=3;
+        });
+
+
+        speakertypes.getChildren().addAll(btn1,btn2,btn3);
+
+        waveControls.getChildren().addAll(title, rotationSlider, imageView,speakerLabel, speakertypes);
+
+
+
 
         return waveControls;
     }
@@ -152,7 +177,7 @@ public class WaveSimulation extends Application {
         controls.setPrefWidth(280); // Slightly wider for new controls
 
         // Title
-        Label title = new Label("Wall Controls");
+        Label title = new Label("Wall options");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
         Label wallTypeLabel = new Label("Wall Type:");
@@ -219,7 +244,7 @@ public class WaveSimulation extends Application {
 
     private VBox createControls() {
         VBox controls = new VBox(10);
-        controls.setStyle("-fx-padding: 20; -fx-background-color: #333;");
+        controls.setStyle("-fx-padding: 20;   -fx-background-color: #333;");
         controls.setPrefWidth(280); // Slightly wider for new controls
 
         // Wave speed slider (existing code)
@@ -577,7 +602,7 @@ public class WaveSimulation extends Application {
     }
 
     private void addWaveSource(double x, double y, Color color) {
-        WaveSource source = new WaveSource(x, y, currentEmitAngle);
+        WaveSource source = new WaveSource(x, y, currentEmitAngle, chosenAmplitude);
         sources.add(source);
         // addedElementsStack.add(source);
 
@@ -630,7 +655,7 @@ public class WaveSimulation extends Application {
                     double angle = (i * 5) * Math.PI / 180; // was: double angle = (i * 10) * Math.PI / 180;
                     // Directly add to concurrent queue - safe!
                     waveFronts.add(new WaveFront(
-                            source.x, source.y, angle, 1.0, 0));
+                            source.x, source.y, angle, source.amplitude, 0));
                 }
             }
         }
@@ -664,7 +689,7 @@ public class WaveSimulation extends Application {
             }
 
             // Mark for removal if collided or too old
-            if (collided || wave.age > 200 || wave.amplitude < 0.05) {
+            if (collided || wave.age > 500 || wave.amplitude < 0.05) {
                 wavesToRemove.add(wave);
             }
         }
