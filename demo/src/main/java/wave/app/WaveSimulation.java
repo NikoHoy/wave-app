@@ -147,7 +147,7 @@ public class WaveSimulation extends Application {
         VBox speakertypes= new VBox(10);
         Button btn1=new Button("speaker 0.3");
         Button btn2=new Button("speaker 1");
-        Button btn3=new Button("speaker 2.0");
+        Button btn3=new Button("speaker 3.0");
         btn1.setOnAction(e -> {
             chosenAmplitude=0.3;
         });
@@ -155,7 +155,7 @@ public class WaveSimulation extends Application {
             chosenAmplitude=1;
         });
         btn3.setOnAction(e -> {
-            chosenAmplitude=2;
+            chosenAmplitude=3;
         });
 
 
@@ -689,7 +689,7 @@ public class WaveSimulation extends Application {
             }
 
             // Mark for removal if collided or too old
-            if (collided || wave.age > 200 || wave.amplitude < 0.05) {
+            if (collided || wave.age > 500 || wave.amplitude < 0.05) {
                 wavesToRemove.add(wave);
             }
         }
