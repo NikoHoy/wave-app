@@ -41,6 +41,19 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                    <includes>
+                        <include>**/*.mp3</include>
+                        <include>**/*.wav</include>
+                        <include>**/*.fxml</include>
+                        <include>**/*.css</include>
+                        <include>**/*.png</include>
+                        <include>**/*.jpg</include>
+                    </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

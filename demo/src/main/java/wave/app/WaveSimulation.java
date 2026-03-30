@@ -24,6 +24,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -57,7 +59,7 @@ public class WaveSimulation extends Application {
     private Slider customTransmissionSlider;
     private Label customValuesLabel;
     private int currentEmitAngle;
-    private double chosenAmplitude=1;
+    private double chosenAmplitude = 1;
 
     private ImageView iv = new ImageView();
 
@@ -130,8 +132,14 @@ public class WaveSimulation extends Application {
 
         // Image arrowImage = new
         // Image("demo/src/main/java/wave/app/red-sticker-arrow-4.png");
-        Image arrowImage = new Image(getClass().getResourceAsStream("red-sticker-arrow-4.png"), 100, 100, true, true);
-        ImageView imageView = new ImageView(arrowImage);
+        ImageView imageView = null;
+        InputStream inputStream = getClass().getResourceAsStream("/images/red-sticker-arrow-4.png");
+        if (inputStream != null) {
+            Image arrowImage = new Image(inputStream, 100, 100, true, true);
+            imageView = new ImageView(arrowImage);
+        } else {
+            System.err.println("image not found: images/red-sticker-arrow-4.png");
+        }
 
         Slider rotationSlider = new Slider(0, 72, 0);
         rotationSlider.setShowTickLabels(true);
@@ -144,27 +152,23 @@ public class WaveSimulation extends Application {
         Label speakerLabel = new Label("Speaker amplitude");
         speakerLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
-        VBox speakertypes= new VBox(10);
-        Button btn1=new Button("speaker 0.3");
-        Button btn2=new Button("speaker 1");
-        Button btn3=new Button("speaker 3.0");
+        VBox speakertypes = new VBox(10);
+        Button btn1 = new Button("speaker 0.3");
+        Button btn2 = new Button("speaker 1");
+        Button btn3 = new Button("speaker 3.0");
         btn1.setOnAction(e -> {
-            chosenAmplitude=0.3;
+            chosenAmplitude = 0.3;
         });
         btn2.setOnAction(e -> {
-            chosenAmplitude=1;
+            chosenAmplitude = 1;
         });
         btn3.setOnAction(e -> {
-            chosenAmplitude=3;
+            chosenAmplitude = 3;
         });
 
+        speakertypes.getChildren().addAll(btn1, btn2, btn3);
 
-        speakertypes.getChildren().addAll(btn1,btn2,btn3);
-
-        waveControls.getChildren().addAll(title, rotationSlider, imageView,speakerLabel, speakertypes);
-
-
-
+        waveControls.getChildren().addAll(title, rotationSlider, imageView, speakerLabel, speakertypes);
 
         return waveControls;
     }
@@ -313,8 +317,8 @@ public class WaveSimulation extends Application {
         Button undoBtn = new Button("undo last element");
         undoBtn.setMaxWidth(Double.MAX_VALUE);
         undoBtn.setOnAction(e -> {
-            System.out.println(sources);
-            System.out.println(walls);
+            // System.out.println(sources);
+            // System.out.println(walls);
 
             if (sources.size() > 0) {
                 sources.remove(sources.size() - 1);
@@ -370,26 +374,39 @@ public class WaveSimulation extends Application {
             if (isMusicPlayerOn) {
                 MusicPlayer.playSong();
                 MusicPlayer.setVolume(0.4);
+                checkMusicLoudness.setText("Stop music");
             }
             if (!isMusicPlayerOn) {
                 MusicPlayer.stopSong();
+                checkMusicLoudness.setText("Check volume level");
             }
             mapPane.setOnMouseClicked(event -> {
                 double clickX = event.getX();
                 double clickY = event.getY();
                 double volume = volumeClick(clickX, clickY);
-                // System.out.println(volume);
-                Image userImage = new Image(getClass().getResourceAsStream("user.jpg"), 20, 20, true, true);
-                iv.setImage(userImage);
 
-                iv.setLayoutX(clickX);
-                iv.setLayoutY(clickY);
-                if(!mapPane.getChildren().contains(iv)){
-                    mapPane.getChildren().add(iv);
+                InputStream is = getClass().getResourceAsStream("/images/user.jpg");
+
+                if (is != null) {
+                    Image userImage = new Image(is, 20, 20, true, true);
+                    iv.setImage(userImage);
+                } else {
+                    System.err.println("image not found: images/user.jpg");
                 }
 
+                iv.setLayoutX(clickX - 10);
+                iv.setLayoutY(clickY - 10);
+                if (!mapPane.getChildren().contains(iv)) {
+                    mapPane.getChildren().add(iv);
+                }
+                // Label vol = new Label(Double.toString(volume));
+                // vol.setTextFill(Color.WHITE);
+                // vol.setStyle("-fx-font-size: 8;");
+                // vol.setLayoutX(clickX);
+                // vol.setLayoutY(clickY + 15);
+
                 MusicPlayer.setVolume(volume);
-                //System.out.println(volume);
+                // System.out.println(volume);
             }
 
             );
@@ -435,18 +452,13 @@ public class WaveSimulation extends Application {
             double dy = wave.y - y;
             double distanceSq = dx * dx + dy * dy;
 
-            if(distanceSq <= radius * radius){
-                if(closest == null || wave.amplitude > closest.amplitude){
+            if (distanceSq <= radius * radius) {
+                if (closest == null || wave.amplitude > closest.amplitude) {
                     closest = wave;
                     minDistance = distanceSq;
                 }
             }
 
-
-            // if (distanceSq < minDistance) {
-            //     minDistance = distanceSq;
-            //     closest = wave;
-            // }
         }
         return closest;
     }
