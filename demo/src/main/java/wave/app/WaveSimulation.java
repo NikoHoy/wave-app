@@ -60,6 +60,8 @@ public class WaveSimulation extends Application {
     private Label customValuesLabel;
     private int currentEmitAngle;
     private double chosenAmplitude = 1;
+    private double chosenBass=1.5;
+    private boolean bassToggled=false;
 
     private ImageView iv = new ImageView();
 
@@ -92,6 +94,7 @@ public class WaveSimulation extends Application {
         Tab waveSourceTab = new Tab("Wave source options", soundControls);
         waveSourceTab.setClosable(false);
         tabs.getTabs().add(waveSourceTab);
+
 
         // Loading and playing audio
         // MusicPlayer.playSong();
@@ -154,16 +157,19 @@ public class WaveSimulation extends Application {
 
         VBox speakertypes = new VBox(10);
         Button btn1 = new Button("speaker 0.3");
-        Button btn2 = new Button("speaker 1");
-        Button btn3 = new Button("speaker 3.0");
+        Button btn2 = new Button("speaker 0.5");
+        Button btn3 = new Button("speaker 0.8");
         btn1.setOnAction(e -> {
             chosenAmplitude = 0.3;
+            chosenBass=0.5;
         });
         btn2.setOnAction(e -> {
-            chosenAmplitude = 1;
+            chosenAmplitude = 0.5;
+            chosenBass=0.7;
         });
         btn3.setOnAction(e -> {
-            chosenAmplitude = 3;
+            chosenAmplitude = 0.8;
+            chosenBass=1.0;
         });
 
         speakertypes.getChildren().addAll(btn1, btn2, btn3);
@@ -263,7 +269,7 @@ public class WaveSimulation extends Application {
         });
 
         // initialize buttons wallmode and dot mode
-        Button wallModeBtn = new Button("Add Wall mode");
+        Button wallModeBtn = new Button("Add Wall");
         Button addDotsButton = new Button("Add wave source");
 
         // Wall mode toggle button functionality (updated)
@@ -411,10 +417,18 @@ public class WaveSimulation extends Application {
 
             );
         });
+        //bass toggle, eri tajuksien katsomiseen. kokeilun vuoksi pelkkä basso.
+
+        Button bassToggle=new Button("toggle bass");
+        bassToggle.setOnAction(e -> {
+                    bassToggled=!bassToggled;
+
+                });
+
 
         controls.getChildren().addAll(
                 new Label(" "),
-                speedLabel, speedSlider,
+                //speedLabel, speedSlider,
                 new Label(" "),
                 // wallTypeLabel, wallTypeCombo,
                 // customValuesLabel,
@@ -424,6 +438,7 @@ public class WaveSimulation extends Application {
                 wallModeBtn,
                 addDotsButton,
                 checkMusicLoudness,
+                bassToggle,
                 clearBtn,
                 resetBtn,
                 fullReset,
@@ -614,7 +629,7 @@ public class WaveSimulation extends Application {
     }
 
     private void addWaveSource(double x, double y, Color color) {
-        WaveSource source = new WaveSource(x, y, currentEmitAngle, chosenAmplitude);
+        WaveSource source = new WaveSource(x, y, currentEmitAngle, chosenAmplitude, chosenBass);
         sources.add(source);
         // addedElementsStack.add(source);
 
@@ -667,7 +682,7 @@ public class WaveSimulation extends Application {
                     double angle = (i * 5) * Math.PI / 180; // was: double angle = (i * 10) * Math.PI / 180;
                     // Directly add to concurrent queue - safe!
                     waveFronts.add(new WaveFront(
-                            source.x, source.y, angle, source.amplitude, 0));
+                            source.x, source.y, angle, source.amplitude, 0, source.bassAmp));
                 }
             }
         }
@@ -688,6 +703,7 @@ public class WaveSimulation extends Application {
             wave.y += dy;
             wave.age++;
             wave.amplitude *= 0.99; // Natural decay
+            wave.bassAmp*=0.99;
 
             // Check wall collisions
             boolean collided = false;
@@ -701,7 +717,7 @@ public class WaveSimulation extends Application {
             }
 
             // Mark for removal if collided or too old
-            if (collided || wave.age > 500 || wave.amplitude < 0.05) {
+            if (collided || wave.age > 500 || (wave.amplitude < 0.05 && wave.bassAmp<0.05) ){
                 wavesToRemove.add(wave);
             }
         }
@@ -760,7 +776,7 @@ public class WaveSimulation extends Application {
                     wave.y + reflectY * offset,
                     reflectAngle,
                     wave.amplitude * wallReflection,
-                    wave.generation + 1));
+                    wave.generation + 1, wave.bassAmp*wallReflection));
         }
 
         // Create transmitted wave
@@ -770,7 +786,7 @@ public class WaveSimulation extends Application {
                     wave.y + dy * offset,
                     wave.angle,
                     wave.amplitude * wallTransmission,
-                    wave.generation + 1));
+                    wave.generation + 1, wave.bassAmp*wallTransmission));
         }
     }
 
@@ -783,29 +799,45 @@ public class WaveSimulation extends Application {
                     .removeIf(node -> node instanceof Circle && ((Circle) node).getFill() == Color.TRANSPARENT);
 
             // Draw current wave fronts
+
+
+
+            double amp=0;
             for (WaveFront wave : waveFronts) {
                 Circle circle = new Circle(wave.x, wave.y, 3);
                 circle.setFill(Color.TRANSPARENT);
+                if(!bassToggled){
+                    amp=wave.amplitude;
+
+                }
+                else{
+                    amp=wave.bassAmp;
+                }
+
 
                 // Color based on amplitude and generation
+
+
                 Color color = Color.CYAN.deriveColor(
-                        0, 1, 1,
-                        Math.min(1, wave.amplitude));
+                        0, 1, 1, Math.min(1, amp));
 
                 if (wave.generation == 1)
-                    color = Color.YELLOW.deriveColor(0, 1, 1, wave.amplitude);
+                    color = Color.YELLOW.deriveColor(0, 1, 1, amp);
                 if (wave.generation == 2)
-                    color = Color.ORANGE.deriveColor(0, 1, 1, wave.amplitude);
+                    color = Color.ORANGE.deriveColor(0, 1, 1, amp);
                 if (wave.generation >= 3)
-                    color = Color.RED.deriveColor(0, 1, 1, wave.amplitude);
+                    color = Color.RED.deriveColor(0, 1, 1, amp);
 
                 circle.setStroke(color);
                 circle.setStrokeWidth(1.5);
 
                 mapPane.getChildren().add(circle);
             }
+
         });
     }
+
+
 
     public static void main(String[] args) {
         launch(args);

@@ -6,8 +6,9 @@ public class WaveSource {
         int frameCounter = 0;
         int emitAngle=0;
         double amplitude=1;
+        double bassAmp=1;
         
-        WaveSource(double x, double y, int emitAngle, double amplitude) {
+        WaveSource(double x, double y, int emitAngle, double amplitude, double bassAmp) {
             this.x = x;
             this.y = y;
             this.emitAngle=emitAngle;
