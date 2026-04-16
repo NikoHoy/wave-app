@@ -2,6 +2,7 @@ package wave.app;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -16,11 +17,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
@@ -67,6 +70,40 @@ public class WaveSimulation extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        StackPane startScreen = new StackPane();
+
+        VBox main = new VBox(20);
+        main.setAlignment(Pos.CENTER);
+
+        Label welcometxt = new Label("Welcome!");
+        //welcometxt.setStyle("-fx-font-size: 70px; -fx-font-weight: bold;");
+        welcometxt.setFont(Font.font("Segoe Script", 70));
+        welcometxt.setStyle("-fx-font-weight: bold;");
+
+        Button openSimulationBtn = new Button("Create New Space");
+        openSimulationBtn.setOnAction(e -> {
+            createSimulation(primaryStage);
+        });
+        openSimulationBtn.setPrefHeight(50);
+        openSimulationBtn.setMaxWidth(250);
+        
+        Button example = new Button("See Example");
+        example.setPrefHeight(50);
+        example.setMaxWidth(250);
+
+        main.getChildren().addAll(welcometxt, openSimulationBtn, example);
+
+        startScreen.getChildren().addAll(main);
+
+
+        Scene startScene = new Scene(startScreen, 1000, 800);
+
+        primaryStage.setTitle("Virtual Showroom");
+        primaryStage.setScene(startScene);
+        primaryStage.show();
+    }
+
+    private void createSimulation(Stage primaryStage){
         // Main map pane
         mapPane = new Pane();
         mapPane.setStyle("-fx-background-color: #1a1a1a;");
@@ -95,11 +132,6 @@ public class WaveSimulation extends Application {
         waveSourceTab.setClosable(false);
         tabs.getTabs().add(waveSourceTab);
 
-
-        // Loading and playing audio
-        // MusicPlayer.playSong();
-        // MusicPlayer.setVolume(0.4);
-
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
 
@@ -120,7 +152,7 @@ public class WaveSimulation extends Application {
         timer.start();
 
         Scene scene = new Scene(root, 1000, 800);
-        primaryStage.setTitle("Wave Simulation");
+        primaryStage.setTitle("Virtual Showroom");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -420,6 +452,7 @@ public class WaveSimulation extends Application {
         //bass toggle, eri tajuksien katsomiseen. kokeilun vuoksi pelkkä basso.
 
         Button bassToggle=new Button("toggle bass");
+        bassToggle.setMaxWidth(Double.MAX_VALUE);
         bassToggle.setOnAction(e -> {
                     bassToggled=!bassToggled;
 

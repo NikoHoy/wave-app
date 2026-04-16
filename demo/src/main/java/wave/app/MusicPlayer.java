@@ -11,7 +11,7 @@ public class MusicPlayer {
     public static void playSong() {
         try{
             URL resource = MusicPlayer.class.getResource("/audio/vlog-hip-hop.mp3");
-            System.out.println(resource);
+            //System.out.println(resource);
 
             if (resource != null) {
         //Media song = new Media(new File("demo/src/main/resources/audio/vlog-hip-hop.mp3").toURI().toString());
