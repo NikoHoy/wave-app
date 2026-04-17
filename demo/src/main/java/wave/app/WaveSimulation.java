@@ -15,16 +15,13 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
 
@@ -63,8 +60,8 @@ public class WaveSimulation extends Application {
     private Label customValuesLabel;
     private int currentEmitAngle;
     private double chosenAmplitude = 1;
-    private double chosenBass=1.5;
-    private boolean bassToggled=false;
+    private double chosenBass = 1.5;
+    private boolean bassToggled = false;
 
     private ImageView iv = new ImageView();
 
@@ -76,7 +73,7 @@ public class WaveSimulation extends Application {
         main.setAlignment(Pos.CENTER);
 
         Label welcometxt = new Label("Welcome!");
-        //welcometxt.setStyle("-fx-font-size: 70px; -fx-font-weight: bold;");
+        // welcometxt.setStyle("-fx-font-size: 70px; -fx-font-weight: bold;");
         welcometxt.setFont(Font.font("Segoe Script", 70));
         welcometxt.setStyle("-fx-font-weight: bold;");
 
@@ -86,15 +83,18 @@ public class WaveSimulation extends Application {
         });
         openSimulationBtn.setPrefHeight(50);
         openSimulationBtn.setMaxWidth(250);
-        
-        Button example = new Button("See Example");
-        example.setPrefHeight(50);
-        example.setMaxWidth(250);
 
-        main.getChildren().addAll(welcometxt, openSimulationBtn, example);
+        Button exampleBtn = new Button("See Example");
+        exampleBtn.setOnAction(e -> {
+            createSimulation(primaryStage);
+            createSampleWalls();
+        });
+        exampleBtn.setPrefHeight(50);
+        exampleBtn.setMaxWidth(250);
+
+        main.getChildren().addAll(welcometxt, openSimulationBtn, exampleBtn);
 
         startScreen.getChildren().addAll(main);
-
 
         Scene startScene = new Scene(startScreen, 1000, 800);
 
@@ -103,7 +103,7 @@ public class WaveSimulation extends Application {
         primaryStage.show();
     }
 
-    private void createSimulation(Stage primaryStage){
+    private void createSimulation(Stage primaryStage) {
         // Main map pane
         mapPane = new Pane();
         mapPane.setStyle("-fx-background-color: #1a1a1a;");
@@ -112,7 +112,7 @@ public class WaveSimulation extends Application {
         drawGrid();
 
         // Create some sample walls
-        createSampleWalls();
+        // createSampleWalls();
 
         // Create control panel
         VBox rightPanel = new VBox();
@@ -193,15 +193,15 @@ public class WaveSimulation extends Application {
         Button btn3 = new Button("speaker 0.8");
         btn1.setOnAction(e -> {
             chosenAmplitude = 0.3;
-            chosenBass=0.5;
+            chosenBass = 0.5;
         });
         btn2.setOnAction(e -> {
             chosenAmplitude = 0.5;
-            chosenBass=0.7;
+            chosenBass = 0.7;
         });
         btn3.setOnAction(e -> {
             chosenAmplitude = 0.8;
-            chosenBass=1.0;
+            chosenBass = 1.0;
         });
 
         speakertypes.getChildren().addAll(btn1, btn2, btn3);
@@ -449,19 +449,18 @@ public class WaveSimulation extends Application {
 
             );
         });
-        //bass toggle, eri tajuksien katsomiseen. kokeilun vuoksi pelkkä basso.
+        // bass toggle, eri tajuksien katsomiseen. kokeilun vuoksi pelkkä basso.
 
-        Button bassToggle=new Button("toggle bass");
+        Button bassToggle = new Button("toggle bass");
         bassToggle.setMaxWidth(Double.MAX_VALUE);
         bassToggle.setOnAction(e -> {
-                    bassToggled=!bassToggled;
+            bassToggled = !bassToggled;
 
-                });
-
+        });
 
         controls.getChildren().addAll(
                 new Label(" "),
-                //speedLabel, speedSlider,
+                // speedLabel, speedSlider,
                 new Label(" "),
                 // wallTypeLabel, wallTypeCombo,
                 // customValuesLabel,
@@ -647,18 +646,25 @@ public class WaveSimulation extends Application {
 
     private void createSampleWalls() {
         // Create different types of walls
-        addWall(200, 100, 200, 500, WallType.DRYWALL); // Solid wall (white)
-        addWall(600, 100, 600, 500, WallType.CONCRETE); // Glass (light blue)
-        addWall(100, 300, 700, 300, WallType.BRICK); // Water (cyan)
-        addWall(400, 200, 400, 400, WallType.WOOD); // Mirror (yellow)
-        addWall(100, 500, 300, 300, WallType.ABSORBER); // Absorber (dark gray)
+        addWall(120, 90, 120, 600, WallType.CONCRETE);
+        addWall(120, 600, 600, 600, WallType.CONCRETE);
+        addWall(600, 600, 600, 210, WallType.CONCRETE);
+        addWall(600, 210, 450, 210, WallType.CONCRETE);
+        addWall(450, 90, 450, 210, WallType.CONCRETE);
+        addWall(450, 90, 120, 90, WallType.BRICK);
+
+        // addWall(200, 100, 200, 500, WallType.DRYWALL); // Solid wall (white)
+        // addWall(600, 100, 600, 500, WallType.CONCRETE); // Glass (light blue)
+        // addWall(100, 300, 700, 300, WallType.BRICK); // Water (cyan)
+        // addWall(400, 200, 400, 400, WallType.WOOD); // Mirror (yellow)
+        // addWall(100, 500, 300, 300, WallType.ABSORBER); // Absorber (dark gray)
 
         // Add a custom wall with specific values
-        addWall(500, 500, 700, 500, WallType.CUSTOM, 0.4, 0.6);
+        //addWall(500, 500, 700, 500, WallType.CUSTOM, 0.4, 0.6);
 
         // Add some wave sources
-        addWaveSource(300, 250, Color.RED);
-        addWaveSource(500, 350, Color.BLUE);
+        addWaveSourceWithAngle(130, 100, 12);
+        addWaveSourceWithAngle(590, 220, 25);
     }
 
     private void addWaveSource(double x, double y, Color color) {
@@ -669,6 +675,24 @@ public class WaveSimulation extends Application {
         // Visual dot
         Circle dot = new Circle(x, y, 8);
         dot.setFill(color);
+        dot.setStroke(Color.WHITE);
+        dot.setStrokeWidth(2);
+        dot.setViewOrder(-1);
+
+        // Make draggable
+        makeDraggable(dot, source);
+
+        Platform.runLater(() -> mapPane.getChildren().add(dot));
+    }
+
+    private void addWaveSourceWithAngle(double x, double y, int angle) {
+        WaveSource source = new WaveSource(x, y, angle, chosenAmplitude, chosenBass);
+        sources.add(source);
+        // addedElementsStack.add(source);
+
+        // Visual dot
+        Circle dot = new Circle(x, y, 8);
+        dot.setFill(Color.RED);
         dot.setStroke(Color.WHITE);
         dot.setStrokeWidth(2);
         dot.setViewOrder(-1);
@@ -736,7 +760,7 @@ public class WaveSimulation extends Application {
             wave.y += dy;
             wave.age++;
             wave.amplitude *= 0.99; // Natural decay
-            wave.bassAmp*=0.99;
+            wave.bassAmp *= 0.99;
 
             // Check wall collisions
             boolean collided = false;
@@ -750,7 +774,7 @@ public class WaveSimulation extends Application {
             }
 
             // Mark for removal if collided or too old
-            if (collided || wave.age > 500 || (wave.amplitude < 0.05 && wave.bassAmp<0.05) ){
+            if (collided || wave.age > 500 || (wave.amplitude < 0.05 && wave.bassAmp < 0.05)) {
                 wavesToRemove.add(wave);
             }
         }
@@ -809,7 +833,7 @@ public class WaveSimulation extends Application {
                     wave.y + reflectY * offset,
                     reflectAngle,
                     wave.amplitude * wallReflection,
-                    wave.generation + 1, wave.bassAmp*wallReflection));
+                    wave.generation + 1, wave.bassAmp * wallReflection));
         }
 
         // Create transmitted wave
@@ -819,7 +843,7 @@ public class WaveSimulation extends Application {
                     wave.y + dy * offset,
                     wave.angle,
                     wave.amplitude * wallTransmission,
-                    wave.generation + 1, wave.bassAmp*wallTransmission));
+                    wave.generation + 1, wave.bassAmp * wallTransmission));
         }
     }
 
@@ -833,23 +857,18 @@ public class WaveSimulation extends Application {
 
             // Draw current wave fronts
 
-
-
-            double amp=0;
+            double amp = 0;
             for (WaveFront wave : waveFronts) {
                 Circle circle = new Circle(wave.x, wave.y, 3);
                 circle.setFill(Color.TRANSPARENT);
-                if(!bassToggled){
-                    amp=wave.amplitude;
+                if (!bassToggled) {
+                    amp = wave.amplitude;
 
+                } else {
+                    amp = wave.bassAmp;
                 }
-                else{
-                    amp=wave.bassAmp;
-                }
-
 
                 // Color based on amplitude and generation
-
 
                 Color color = Color.CYAN.deriveColor(
                         0, 1, 1, Math.min(1, amp));
@@ -869,8 +888,6 @@ public class WaveSimulation extends Application {
 
         });
     }
-
-
 
     public static void main(String[] args) {
         launch(args);
