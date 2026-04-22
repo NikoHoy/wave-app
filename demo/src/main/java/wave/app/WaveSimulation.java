@@ -6,18 +6,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -59,8 +51,8 @@ public class WaveSimulation extends Application {
     private Slider customTransmissionSlider;
     private Label customValuesLabel;
     private int currentEmitAngle;
-    private double chosenAmplitude = 1;
-    private double chosenBass = 1.5;
+    private double chosenAmplitude = 0.5;
+    private double chosenBass = 0.7;
     private boolean bassToggled = false;
 
     private ImageView iv = new ImageView();
@@ -116,21 +108,99 @@ public class WaveSimulation extends Application {
 
         // Create control panel
         VBox rightPanel = new VBox();
+        rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10;");
 
-        VBox controls = createControls();
+
+        HBox controls = createControls();
         VBox soundControls = createWaveControls();
 
+        Button addDotsButton = new Button("Add wave source");
+        Button wallModeBtn = new Button("Add Wall");
+
+        wallModeBtn.setMaxWidth(Double.MAX_VALUE);
+        wallModeBtn.setOnAction(e -> {
+            wallDrawingMode = !wallDrawingMode;
+            if (wallDrawingMode) {
+                if (canYouAddDots) {
+                    addDotsButton.fire();
+                }
+                wallModeBtn.setText("Exit Wall Mode");
+                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
+                enableWallDrawing();
+            } else {
+                wallModeBtn.setText("Enter Wall Mode");
+                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
+                mapPane.setOnMousePressed(null);
+                mapPane.setOnMouseDragged(null);
+                mapPane.setOnMouseReleased(null);
+                mapPane.setOnMouseClicked(this::handleMapClick);
+            }
+        });
         VBox wallControlPanel = createWallPanel();
+        wallControlPanel.getChildren().add(wallModeBtn);
+
+
+        addDotsButton.setMaxWidth(Double.MAX_VALUE);
+        addDotsButton.setOnAction(e -> {
+            canYouAddDots = !canYouAddDots;
+            if (canYouAddDots) {
+                if (wallDrawingMode) {
+                    wallModeBtn.fire();
+                }
+                addDotsButton.setText("Exit wave source mode");
+                mapPane.setOnMouseClicked(this::handleMapClick);
+            } else {
+                addDotsButton.setText("Enter wave source mode");
+            }
+        });
+        soundControls.getChildren().add(addDotsButton);
 
         Tab wallControls = new Tab("Wall options", wallControlPanel);
         wallControls.setClosable(false);
 
-        TabPane tabs = new TabPane();
-        tabs.getTabs().add(wallControls);
+        wallControls.setOnSelectionChanged(e ->{
+            wallModeBtn.fire();
+        });
+        wallControlPanel.setOnMouseClicked(e ->{
+            wallModeBtn.fire();
+                });
+        TitledPane sourceTittlePane = new TitledPane();
+        TitledPane wallTittlePane = new TitledPane();
+        wallTittlePane.setExpanded(false);
+        wallTittlePane.setText("Wall");
+        wallTittlePane.setStyle("-fx-pref-tile-height: 100");
+
+        wallTittlePane.setOnMouseClicked(e ->{
+            wallModeBtn.fire();
+            if(sourceTittlePane.isExpanded()){
+                //addDotsButton.fire();
+                sourceTittlePane.setExpanded(false);
+            }
+
+
+        });
+        wallTittlePane.setContent(wallControlPanel);
 
         Tab waveSourceTab = new Tab("Wave source options", soundControls);
         waveSourceTab.setClosable(false);
-        tabs.getTabs().add(waveSourceTab);
+        waveSourceTab.setOnSelectionChanged(e ->{
+            addDotsButton.fire();
+        });
+
+
+        sourceTittlePane.setExpanded(false);
+        sourceTittlePane.setText("Wave source");
+        sourceTittlePane.setOnMouseClicked(e ->{
+            addDotsButton.fire();
+            if(wallTittlePane.isExpanded()){
+                //wallModeBtn.fire();
+                wallTittlePane.setExpanded(false);
+            }
+
+
+        });sourceTittlePane.setContent(soundControls);
+
+        //tabs.getTabs().add(waveSourceTab);
 
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
@@ -138,9 +208,12 @@ public class WaveSimulation extends Application {
         // Layout
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
+        root.setStyle("-fx-background-color: #333");
+        rightPanel.getChildren().addAll(wallTittlePane, sourceTittlePane);
 
-        rightPanel.getChildren().addAll(tabs, controls);
-        root.setRight(rightPanel);
+
+        root.setTop(controls);
+        root.setLeft(rightPanel);
         // Animation loop
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -203,6 +276,23 @@ public class WaveSimulation extends Application {
             chosenAmplitude = 0.8;
             chosenBass = 1.0;
         });
+        btn2.fire();
+//        Button addDotsButton = new Button("Add wave source");
+//
+//        addDotsButton.setMaxWidth(Double.MAX_VALUE);
+//        addDotsButton.setOnAction(e -> {
+//            canYouAddDots = !canYouAddDots;
+//            if (canYouAddDots) {
+//                if (wallDrawingMode) {
+//                    waveControls.getParent().
+//                    wallModeBtn.fire();
+//                }
+//                addDotsButton.setText("Exit wave source mode");
+//                mapPane.setOnMouseClicked(this::handleMapClick);
+//            } else {
+//                addDotsButton.setText("Enter wave source mode");
+//            }
+//        });
 
         speakertypes.getChildren().addAll(btn1, btn2, btn3);
 
@@ -221,6 +311,27 @@ public class WaveSimulation extends Application {
         // Title
         Label title = new Label("Wall options");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
+//        Button wallModeBtn = new Button("Add Wall");
+//        wallModeBtn.setMaxWidth(Double.MAX_VALUE);
+//        wallModeBtn.setOnAction(e -> {
+//            wallDrawingMode = !wallDrawingMode;
+//            if (wallDrawingMode) {
+//                if (canYouAddDots) {
+//                    addDotsButton.fire();
+//                }
+//                wallModeBtn.setText("Exit Wall Mode");
+//                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
+//                enableWallDrawing();
+//            } else {
+//                wallModeBtn.setText("Enter Wall Mode");
+//                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
+//                mapPane.setOnMousePressed(null);
+//                mapPane.setOnMouseDragged(null);
+//                mapPane.setOnMouseReleased(null);
+//                mapPane.setOnMouseClicked(this::handleMapClick);
+//            }
+//        });
+
 
         Label wallTypeLabel = new Label("Wall Type:");
         wallTypeLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
@@ -284,9 +395,9 @@ public class WaveSimulation extends Application {
         return controls;
     }
 
-    private VBox createControls() {
-        VBox controls = new VBox(10);
-        controls.setStyle("-fx-padding: 20;   -fx-background-color: #333;");
+    private HBox createControls() {
+        HBox controls = new HBox(10);
+        controls.setStyle("-fx-padding: 20;   -fx-background-color: #333;-fx-alignment: center");
         controls.setPrefWidth(280); // Slightly wider for new controls
 
         // Wave speed slider (existing code)
@@ -393,7 +504,7 @@ public class WaveSimulation extends Application {
         });
 
         // Full reset button
-        Button fullReset = new Button("Remove all elements");
+        Button fullReset = new Button("Remove all");
         fullReset.setMaxWidth(Double.MAX_VALUE);
         fullReset.setOnAction(e -> {
             waveFronts.clear();
@@ -405,7 +516,7 @@ public class WaveSimulation extends Application {
             });
         });
 
-        Button checkMusicLoudness = new Button("Check volume level");
+        Button checkMusicLoudness = new Button("Check volume");
         checkMusicLoudness.setMaxWidth(Double.MAX_VALUE);
         checkMusicLoudness.setOnAction(e -> {
             isMusicPlayerOn = !isMusicPlayerOn;
@@ -416,7 +527,7 @@ public class WaveSimulation extends Application {
             }
             if (!isMusicPlayerOn) {
                 MusicPlayer.stopSong();
-                checkMusicLoudness.setText("Check volume level");
+                checkMusicLoudness.setText("Check volume");
             }
             mapPane.setOnMouseClicked(event -> {
                 double clickX = event.getX();
@@ -457,8 +568,16 @@ public class WaveSimulation extends Application {
             bassToggled = !bassToggled;
 
         });
+        //nonfunctional placeholder save/load/exit
+        Button save=new Button("Save");
+        Button load=new Button("Load");
+
+        Label nameLabel=new Label("Virtual showroom");
+        nameLabel.setStyle("-fx-color-label-visible: white");
+        nameLabel.setVisible(true);
 
         controls.getChildren().addAll(
+                nameLabel,
                 new Label(" "),
                 // speedLabel, speedSlider,
                 new Label(" "),
@@ -467,14 +586,14 @@ public class WaveSimulation extends Application {
                 // reflectValueLabel, customReflectionSlider,
                 // transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
-                wallModeBtn,
-                addDotsButton,
+                //wallModeBtn,
+                //addDotsButton,
                 checkMusicLoudness,
                 bassToggle,
                 clearBtn,
-                resetBtn,
                 fullReset,
-                undoBtn);
+                undoBtn,
+                save,load);
 
         return controls;
     }
