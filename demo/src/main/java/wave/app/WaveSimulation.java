@@ -566,7 +566,7 @@ public class WaveSimulation extends Application {
             }
             if (!isMusicPlayerOn) {
                 MusicPlayer.stopSong();
-                if(mapPane.getChildren().contains(iv) ){
+                if (mapPane.getChildren().contains(iv)) {
                     mapPane.getChildren().remove(iv);
                 }
                 checkMusicLoudness.setText("Check volume");
@@ -884,7 +884,23 @@ public class WaveSimulation extends Application {
 
     private void handleMapClick(javafx.scene.input.MouseEvent e) {
         if (canYouAddDots && !wallDrawingMode) {
-            addWaveSource(e.getX(), e.getY(), Color.GREEN);
+            double clickX = e.getX();
+            double clickY = e.getY();
+            double minDistance = 10;
+            boolean tooClose = false;
+
+            for (WaveSource s : sources) {
+                double dx = s.x - clickX;
+                double dy = s.y - clickY;
+                if (Math.hypot(dx, dy) < minDistance) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose) {
+                addWaveSource(e.getX(), e.getY(), Color.GREEN);
+            }
         }
     }
 
