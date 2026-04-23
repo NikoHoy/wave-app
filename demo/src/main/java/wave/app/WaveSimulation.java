@@ -107,8 +107,8 @@ public class WaveSimulation extends Application {
         // createSampleWalls();
 
         // Create control panel
-        VBox rightPanel = new VBox();
-        rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10;");
+        VBox leftPanel = new VBox();
+        leftPanel.setStyle("-fx-spacing: 40;-fx-padding: 10;");
 
         HBox controls = createControls();
         VBox soundControls = createWaveControls();
@@ -163,12 +163,12 @@ public class WaveSimulation extends Application {
             wallModeBtn.fire();
         });
         TitledPane sourceTittlePane = new TitledPane();
-        TitledPane wallTittlePane = new TitledPane();
-        wallTittlePane.setExpanded(false);
-        wallTittlePane.setText("Wall");
-        wallTittlePane.setStyle("-fx-pref-tile-height: 100");
+        TitledPane wallTitledPanel = new TitledPane();
+        wallTitledPanel.setExpanded(false);
+        wallTitledPanel.setText("+Wall");
+        wallTitledPanel.setStyle("-fx-pref-tile-height: 100");
 
-        wallTittlePane.setOnMouseClicked(e -> {
+        wallTitledPanel.setOnMouseClicked(e -> {
             wallModeBtn.fire();
             if (sourceTittlePane.isExpanded()) {
                 // addDotsButton.fire();
@@ -176,7 +176,7 @@ public class WaveSimulation extends Application {
             }
 
         });
-        wallTittlePane.setContent(wallControlPanel);
+        wallTitledPanel.setContent(wallControlPanel);
 
         Tab waveSourceTab = new Tab("Wave source options", soundControls);
         waveSourceTab.setClosable(false);
@@ -185,18 +185,29 @@ public class WaveSimulation extends Application {
         });
 
         sourceTittlePane.setExpanded(false);
-        sourceTittlePane.setText("Wave source");
+        sourceTittlePane.setText("+Wave source");
         sourceTittlePane.setOnMouseClicked(e -> {
             addDotsButton.fire();
-            if (wallTittlePane.isExpanded()) {
+            if (wallTitledPanel.isExpanded()) {
                 // wallModeBtn.fire();
-                wallTittlePane.setExpanded(false);
+                wallTitledPanel.setExpanded(false);
             }
 
         });
         sourceTittlePane.setContent(soundControls);
 
+
+        leftPanel.getChildren().addAll(wallTitledPanel, sourceTittlePane);
         // tabs.getTabs().add(waveSourceTab);
+
+        //rightPanel
+        VBox rightPanel = new VBox();
+        rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10");
+        TitledPane speakerOptions= new TitledPane();
+        speakerOptions.setText("selected speaker");
+        speakerOptions.setExpanded(false);
+
+
 
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
@@ -205,10 +216,19 @@ public class WaveSimulation extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
         root.setStyle("-fx-background-color: #333");
-        rightPanel.getChildren().addAll(wallTittlePane, sourceTittlePane);
+
+
+
+
+
+
+        rightPanel.getChildren().add(speakerOptions);
+
 
         root.setTop(controls);
-        root.setLeft(rightPanel);
+        root.setLeft(leftPanel);
+        root.setRight(rightPanel);
+
         // Animation loop
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -219,7 +239,7 @@ public class WaveSimulation extends Application {
         };
         timer.start();
 
-        Scene scene = new Scene(root, 1000, 800);
+        Scene scene = new Scene(root, 1200, 800);
         primaryStage.setTitle("Virtual Showroom");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -631,7 +651,7 @@ public class WaveSimulation extends Application {
                 // transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
                 // wallModeBtn,
-                addDotsButton,
+                //addDotsButton,
                 checkMusicLoudness,
                 bassToggle,
                 clearBtn,
