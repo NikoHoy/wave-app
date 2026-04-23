@@ -110,7 +110,6 @@ public class WaveSimulation extends Application {
         VBox rightPanel = new VBox();
         rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10;");
 
-
         HBox controls = createControls();
         VBox soundControls = createWaveControls();
 
@@ -139,7 +138,6 @@ public class WaveSimulation extends Application {
         VBox wallControlPanel = createWallPanel();
         wallControlPanel.getChildren().add(wallModeBtn);
 
-
         addDotsButton.setMaxWidth(Double.MAX_VALUE);
         addDotsButton.setOnAction(e -> {
             canYouAddDots = !canYouAddDots;
@@ -158,49 +156,47 @@ public class WaveSimulation extends Application {
         Tab wallControls = new Tab("Wall options", wallControlPanel);
         wallControls.setClosable(false);
 
-        wallControls.setOnSelectionChanged(e ->{
+        wallControls.setOnSelectionChanged(e -> {
             wallModeBtn.fire();
         });
-        wallControlPanel.setOnMouseClicked(e ->{
+        wallControlPanel.setOnMouseClicked(e -> {
             wallModeBtn.fire();
-                });
+        });
         TitledPane sourceTittlePane = new TitledPane();
         TitledPane wallTittlePane = new TitledPane();
         wallTittlePane.setExpanded(false);
         wallTittlePane.setText("Wall");
         wallTittlePane.setStyle("-fx-pref-tile-height: 100");
 
-        wallTittlePane.setOnMouseClicked(e ->{
+        wallTittlePane.setOnMouseClicked(e -> {
             wallModeBtn.fire();
-            if(sourceTittlePane.isExpanded()){
-                //addDotsButton.fire();
+            if (sourceTittlePane.isExpanded()) {
+                // addDotsButton.fire();
                 sourceTittlePane.setExpanded(false);
             }
-
 
         });
         wallTittlePane.setContent(wallControlPanel);
 
         Tab waveSourceTab = new Tab("Wave source options", soundControls);
         waveSourceTab.setClosable(false);
-        waveSourceTab.setOnSelectionChanged(e ->{
+        waveSourceTab.setOnSelectionChanged(e -> {
             addDotsButton.fire();
         });
 
-
         sourceTittlePane.setExpanded(false);
         sourceTittlePane.setText("Wave source");
-        sourceTittlePane.setOnMouseClicked(e ->{
+        sourceTittlePane.setOnMouseClicked(e -> {
             addDotsButton.fire();
-            if(wallTittlePane.isExpanded()){
-                //wallModeBtn.fire();
+            if (wallTittlePane.isExpanded()) {
+                // wallModeBtn.fire();
                 wallTittlePane.setExpanded(false);
             }
 
+        });
+        sourceTittlePane.setContent(soundControls);
 
-        });sourceTittlePane.setContent(soundControls);
-
-        //tabs.getTabs().add(waveSourceTab);
+        // tabs.getTabs().add(waveSourceTab);
 
         // Mouse click to add new wave source (when not in wall mode)
         mapPane.setOnMouseClicked(this::handleMapClick);
@@ -210,7 +206,6 @@ public class WaveSimulation extends Application {
         root.setCenter(mapPane);
         root.setStyle("-fx-background-color: #333");
         rightPanel.getChildren().addAll(wallTittlePane, sourceTittlePane);
-
 
         root.setTop(controls);
         root.setLeft(rightPanel);
@@ -277,22 +272,22 @@ public class WaveSimulation extends Application {
             chosenBass = 1.0;
         });
         btn2.fire();
-//        Button addDotsButton = new Button("Add wave source");
-//
-//        addDotsButton.setMaxWidth(Double.MAX_VALUE);
-//        addDotsButton.setOnAction(e -> {
-//            canYouAddDots = !canYouAddDots;
-//            if (canYouAddDots) {
-//                if (wallDrawingMode) {
-//                    waveControls.getParent().
-//                    wallModeBtn.fire();
-//                }
-//                addDotsButton.setText("Exit wave source mode");
-//                mapPane.setOnMouseClicked(this::handleMapClick);
-//            } else {
-//                addDotsButton.setText("Enter wave source mode");
-//            }
-//        });
+        // Button addDotsButton = new Button("Add wave source");
+        //
+        // addDotsButton.setMaxWidth(Double.MAX_VALUE);
+        // addDotsButton.setOnAction(e -> {
+        // canYouAddDots = !canYouAddDots;
+        // if (canYouAddDots) {
+        // if (wallDrawingMode) {
+        // waveControls.getParent().
+        // wallModeBtn.fire();
+        // }
+        // addDotsButton.setText("Exit wave source mode");
+        // mapPane.setOnMouseClicked(this::handleMapClick);
+        // } else {
+        // addDotsButton.setText("Enter wave source mode");
+        // }
+        // });
 
         speakertypes.getChildren().addAll(btn1, btn2, btn3);
 
@@ -311,27 +306,26 @@ public class WaveSimulation extends Application {
         // Title
         Label title = new Label("Wall options");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
-//        Button wallModeBtn = new Button("Add Wall");
-//        wallModeBtn.setMaxWidth(Double.MAX_VALUE);
-//        wallModeBtn.setOnAction(e -> {
-//            wallDrawingMode = !wallDrawingMode;
-//            if (wallDrawingMode) {
-//                if (canYouAddDots) {
-//                    addDotsButton.fire();
-//                }
-//                wallModeBtn.setText("Exit Wall Mode");
-//                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
-//                enableWallDrawing();
-//            } else {
-//                wallModeBtn.setText("Enter Wall Mode");
-//                mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
-//                mapPane.setOnMousePressed(null);
-//                mapPane.setOnMouseDragged(null);
-//                mapPane.setOnMouseReleased(null);
-//                mapPane.setOnMouseClicked(this::handleMapClick);
-//            }
-//        });
-
+        // Button wallModeBtn = new Button("Add Wall");
+        // wallModeBtn.setMaxWidth(Double.MAX_VALUE);
+        // wallModeBtn.setOnAction(e -> {
+        // wallDrawingMode = !wallDrawingMode;
+        // if (wallDrawingMode) {
+        // if (canYouAddDots) {
+        // addDotsButton.fire();
+        // }
+        // wallModeBtn.setText("Exit Wall Mode");
+        // mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
+        // enableWallDrawing();
+        // } else {
+        // wallModeBtn.setText("Enter Wall Mode");
+        // mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
+        // mapPane.setOnMousePressed(null);
+        // mapPane.setOnMouseDragged(null);
+        // mapPane.setOnMouseReleased(null);
+        // mapPane.setOnMouseClicked(this::handleMapClick);
+        // }
+        // });
 
         Label wallTypeLabel = new Label("Wall Type:");
         wallTypeLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
@@ -387,7 +381,7 @@ public class WaveSimulation extends Application {
         wallModeBtn.setOnAction(e -> {
             wallDrawingMode = !wallDrawingMode;
             if (wallDrawingMode) {
-                
+
                 wallModeBtn.setText("Exit Wall Mode");
                 mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
                 enableWallDrawing();
@@ -433,7 +427,7 @@ public class WaveSimulation extends Application {
                 wallTypeLabel, wallTypeCombo,
                 customValuesLabel,
                 reflectValueLabel, customReflectionSlider,
-                transmitValueLabel, customTransmissionSlider, 
+                transmitValueLabel, customTransmissionSlider,
                 wallModeBtn, undoButton,
                 new Label(" "));
 
@@ -457,28 +451,28 @@ public class WaveSimulation extends Application {
         });
 
         // initialize buttons wallmode and dot mode
-        //Button wallModeBtn = new Button("Add Wall");
+        // Button wallModeBtn = new Button("Add Wall");
         Button addDotsButton = new Button("Add wave source");
 
         // Wall mode toggle button functionality (updated)
         // wallModeBtn.setMaxWidth(Double.MAX_VALUE);
         // wallModeBtn.setOnAction(e -> {
-        //     wallDrawingMode = !wallDrawingMode;
-        //     if (wallDrawingMode) {
-        //         if (canYouAddDots) {
-        //             addDotsButton.fire();
-        //         }
-        //         wallModeBtn.setText("Exit Wall Mode");
-        //         mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
-        //         enableWallDrawing();
-        //     } else {
-        //         wallModeBtn.setText("Enter Wall Mode");
-        //         mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
-        //         mapPane.setOnMousePressed(null);
-        //         mapPane.setOnMouseDragged(null);
-        //         mapPane.setOnMouseReleased(null);
-        //         mapPane.setOnMouseClicked(this::handleMapClick);
-        //     }
+        // wallDrawingMode = !wallDrawingMode;
+        // if (wallDrawingMode) {
+        // if (canYouAddDots) {
+        // addDotsButton.fire();
+        // }
+        // wallModeBtn.setText("Exit Wall Mode");
+        // mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: CROSSHAIR;");
+        // enableWallDrawing();
+        // } else {
+        // wallModeBtn.setText("Enter Wall Mode");
+        // mapPane.setStyle("-fx-background-color: #1a1a1a; -fx-cursor: DEFAULT;");
+        // mapPane.setOnMousePressed(null);
+        // mapPane.setOnMouseDragged(null);
+        // mapPane.setOnMouseReleased(null);
+        // mapPane.setOnMouseClicked(this::handleMapClick);
+        // }
         // });
 
         // add dots button functionality
@@ -487,7 +481,7 @@ public class WaveSimulation extends Application {
             canYouAddDots = !canYouAddDots;
             if (canYouAddDots) {
                 if (wallDrawingMode) {
-                    //wallModeBtn.fire();
+                    // wallModeBtn.fire();
                 }
                 addDotsButton.setText("Exit wave source mode");
                 mapPane.setOnMouseClicked(this::handleMapClick);
@@ -572,35 +566,40 @@ public class WaveSimulation extends Application {
             }
             if (!isMusicPlayerOn) {
                 MusicPlayer.stopSong();
+                if(mapPane.getChildren().contains(iv) ){
+                    mapPane.getChildren().remove(iv);
+                }
                 checkMusicLoudness.setText("Check volume");
             }
             mapPane.setOnMouseClicked(event -> {
-                double clickX = event.getX();
-                double clickY = event.getY();
-                double volume = volumeClick(clickX, clickY);
+                if (isMusicPlayerOn) {
+                    double clickX = event.getX();
+                    double clickY = event.getY();
+                    double volume = volumeClick(clickX, clickY);
 
-                InputStream is = getClass().getResourceAsStream("/images/user.jpg");
+                    InputStream is = getClass().getResourceAsStream("/images/user.jpg");
 
-                if (is != null) {
-                    Image userImage = new Image(is, 20, 20, true, true);
-                    iv.setImage(userImage);
-                } else {
-                    System.err.println("image not found: images/user.jpg");
+                    if (is != null) {
+                        Image userImage = new Image(is, 20, 20, true, true);
+                        iv.setImage(userImage);
+                    } else {
+                        System.err.println("image not found: images/user.jpg");
+                    }
+
+                    iv.setLayoutX(clickX - 10);
+                    iv.setLayoutY(clickY - 10);
+                    if (!mapPane.getChildren().contains(iv)) {
+                        mapPane.getChildren().add(iv);
+                    }
+                    // Label vol = new Label(Double.toString(volume));
+                    // vol.setTextFill(Color.WHITE);
+                    // vol.setStyle("-fx-font-size: 8;");
+                    // vol.setLayoutX(clickX);
+                    // vol.setLayoutY(clickY + 15);
+
+                    MusicPlayer.setVolume(volume);
+                    // System.out.println(volume);
                 }
-
-                iv.setLayoutX(clickX - 10);
-                iv.setLayoutY(clickY - 10);
-                if (!mapPane.getChildren().contains(iv)) {
-                    mapPane.getChildren().add(iv);
-                }
-                // Label vol = new Label(Double.toString(volume));
-                // vol.setTextFill(Color.WHITE);
-                // vol.setStyle("-fx-font-size: 8;");
-                // vol.setLayoutX(clickX);
-                // vol.setLayoutY(clickY + 15);
-
-                MusicPlayer.setVolume(volume);
-                // System.out.println(volume);
             }
 
             );
@@ -613,11 +612,11 @@ public class WaveSimulation extends Application {
             bassToggled = !bassToggled;
 
         });
-        //nonfunctional placeholder save/load/exit
-        Button save=new Button("Save");
-        Button load=new Button("Load");
+        // nonfunctional placeholder save/load/exit
+        Button save = new Button("Save");
+        Button load = new Button("Load");
 
-        Label nameLabel=new Label("Virtual showroom");
+        Label nameLabel = new Label("Virtual showroom");
         nameLabel.setStyle("-fx-color-label-visible: white");
         nameLabel.setVisible(true);
 
@@ -631,14 +630,14 @@ public class WaveSimulation extends Application {
                 // reflectValueLabel, customReflectionSlider,
                 // transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
-                //wallModeBtn,
+                // wallModeBtn,
                 addDotsButton,
                 checkMusicLoudness,
                 bassToggle,
                 clearBtn,
                 fullReset,
                 undoBtn,
-                save,load);
+                save, load);
 
         return controls;
     }
@@ -824,7 +823,7 @@ public class WaveSimulation extends Application {
         // addWall(100, 500, 300, 300, WallType.ABSORBER); // Absorber (dark gray)
 
         // Add a custom wall with specific values
-        //addWall(500, 500, 700, 500, WallType.CUSTOM, 0.4, 0.6);
+        // addWall(500, 500, 700, 500, WallType.CUSTOM, 0.4, 0.6);
 
         // Add some wave sources
         addWaveSourceWithAngle(130, 100, 12);
