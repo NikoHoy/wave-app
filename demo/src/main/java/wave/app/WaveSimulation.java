@@ -56,6 +56,13 @@ public class WaveSimulation extends Application {
     private boolean bassToggled = false;
 
     private ImageView iv = new ImageView();
+    private Double[] speakerValues = new Double[3];
+    private Label ampLabel = new Label();
+    private Label bassAmpLabel = new Label();
+    private Label emitAngleLabel = new Label();
+    VBox speakerInfo = new VBox(10);
+
+    TitledPane speakerOptions = new TitledPane();
 
     @Override
     public void start(Stage primaryStage) {
@@ -196,34 +203,27 @@ public class WaveSimulation extends Application {
         });
         sourceTittlePane.setContent(soundControls);
 
-
         leftPanel.getChildren().addAll(wallTitledPanel, sourceTittlePane);
         // tabs.getTabs().add(waveSourceTab);
 
-        //rightPanel
+        // rightPanel
         VBox rightPanel = new VBox();
         rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10");
-        TitledPane speakerOptions= new TitledPane();
+        //TitledPane speakerOptions = new TitledPane();
         speakerOptions.setText("selected speaker");
         speakerOptions.setExpanded(false);
-
-
+        VBox si = createSpeakerOptions();
+        speakerOptions.setContent(si);
 
         // Mouse click to add new wave source (when not in wall mode)
-        mapPane.setOnMouseClicked(this::handleMapClick);
+        // mapPane.setOnMouseClicked(this::handleMapClick);
 
         // Layout
         BorderPane root = new BorderPane();
         root.setCenter(mapPane);
         root.setStyle("-fx-background-color: #333");
 
-
-
-
-
-
         rightPanel.getChildren().add(speakerOptions);
-
 
         root.setTop(controls);
         root.setLeft(leftPanel);
@@ -243,6 +243,41 @@ public class WaveSimulation extends Application {
         primaryStage.setTitle("Virtual Showroom");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private VBox createSpeakerOptions() {
+        speakerInfo.setStyle("-fx-padding: 20; -fx-background-color: #333;");
+        speakerInfo.setPrefWidth(280);
+
+        Label title = new Label("Speaker information: ");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
+
+        speakerInfo.getChildren().add(title);
+
+        return speakerInfo;
+    }
+
+    //opens the right pane and shows speaker info
+    //is used in the makeDraggable() method on line 928
+    // TODO: can add name if you make it so that the different speakers have names 
+    // I added String name to WaveSource so its possible to have Genelec G3 etc.
+    private void onClick(Circle dot, WaveSource source) {
+        speakerValues[0] = source.amplitude;
+        speakerValues[1] = source.bassAmp;
+        speakerValues[2] = (double) source.emitAngle;
+        speakerOptions.setExpanded(true);
+
+        ampLabel.setText("Speaker amplitude: " + speakerValues[0].toString());
+        bassAmpLabel.setText("Speaker bass amplitude: " + speakerValues[1].toString());
+        emitAngleLabel.setText("Speaker emit angle: " + speakerValues[2].toString());
+
+        if (!speakerInfo.getChildren().contains(ampLabel)) {
+            ampLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
+            bassAmpLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
+            emitAngleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
+            speakerInfo.getChildren().addAll(ampLabel, bassAmpLabel, emitAngleLabel);
+        }
+
     }
 
     private VBox createWaveControls() {
@@ -651,7 +686,7 @@ public class WaveSimulation extends Application {
                 // transmitValueLabel, customTransmissionSlider,
                 new Label(" "),
                 // wallModeBtn,
-                //addDotsButton,
+                // addDotsButton,
                 checkMusicLoudness,
                 bassToggle,
                 clearBtn,
@@ -892,6 +927,7 @@ public class WaveSimulation extends Application {
         dot.setOnMousePressed(e -> {
             dragDelta[0] = dot.getCenterX() - e.getX();
             dragDelta[1] = dot.getCenterY() - e.getY();
+            onClick(dot, source);
         });
 
         dot.setOnMouseDragged(e -> {

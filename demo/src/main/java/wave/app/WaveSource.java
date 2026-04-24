@@ -7,6 +7,7 @@ public class WaveSource {
         int emitAngle=0;
         double amplitude=1;
         double bassAmp=1;
+        String name;
         
         WaveSource(double x, double y, int emitAngle, double amplitude, double bassAmp) {
             this.x = x;
@@ -14,5 +15,17 @@ public class WaveSource {
             this.emitAngle=emitAngle;
             this.amplitude=amplitude;
 
+        }
+
+        WaveSource(double x, double y, int emitAngle, double amplitude, double bassAmp, String name) {
+            this.x = x;
+            this.y = y;
+            this.emitAngle=emitAngle;
+            this.amplitude=amplitude;
+            this.name = name;
+        }
+
+        public void setAmplitude(double amplitude) {
+            this.amplitude = amplitude;
         }
     }
