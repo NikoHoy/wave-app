@@ -61,6 +61,10 @@ public class WaveSimulation extends Application {
     private Label bassAmpLabel = new Label();
     private Label emitAngleLabel = new Label();
     VBox speakerInfo = new VBox(10);
+    private int sourceCount=0;
+    private Label countLabel=new Label();
+    private Slider rightSlider= new Slider(0,72,0);
+    private WaveSource selectedSource;
 
     TitledPane speakerOptions = new TitledPane();
 
@@ -267,17 +271,47 @@ public class WaveSimulation extends Application {
         speakerValues[2] = (double) source.emitAngle;
         speakerOptions.setExpanded(true);
 
+        selectedSource=source;
+        rightSlider.setValue(source.emitAngle);
+
         ampLabel.setText("Speaker amplitude: " + speakerValues[0].toString());
         bassAmpLabel.setText("Speaker bass amplitude: " + speakerValues[1].toString());
-        emitAngleLabel.setText("Speaker emit angle: " + speakerValues[2].toString());
+        emitAngleLabel.setText("Speaker emit angle: " + speakerValues[2].toString());ImageView imageView = null;
+        countLabel.setText("count: "+ sourceCount);
+
+
+
+        InputStream inputStream = getClass().getResourceAsStream("/images/red-sticker-arrow-4.png");
+        if (inputStream != null) {
+            Image arrowImage = new Image(inputStream, 100, 100, true, true);
+            imageView = new ImageView(arrowImage);
+        } else {
+            System.err.println("image not found: images/red-sticker-arrow-4.png");
+        }
+
+        rightSlider.setShowTickLabels(true);
+        rightSlider.setShowTickMarks(true);
+        imageView.rotateProperty().bind(rightSlider.valueProperty().multiply(5));
+        rightSlider.valueProperty().addListener((obs, old, val) -> {
+            if(selectedSource!=null){
+                selectedSource.emitAngle = val.intValue();
+            }
+
+        });
+
+
 
         if (!speakerInfo.getChildren().contains(ampLabel)) {
             ampLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
             bassAmpLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
             emitAngleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
-            speakerInfo.getChildren().addAll(ampLabel, bassAmpLabel, emitAngleLabel);
+            countLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;");
+            speakerInfo.getChildren().addAll(ampLabel, bassAmpLabel, emitAngleLabel,countLabel);
+            sourceCount++;
         }
-
+        if (!speakerInfo.getChildren().contains(rightSlider)) {
+            speakerInfo.getChildren().add(rightSlider);
+        }
     }
 
     private VBox createWaveControls() {
