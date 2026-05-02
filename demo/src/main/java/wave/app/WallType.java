@@ -6,7 +6,7 @@ public enum WallType {
     DRYWALL("Drywall", 0.95, 0.3, Color.WHITE),
     CONCRETE("Concrete", 0.97, 0.1, Color.DARKGRAY),
     BRICK("Brick", 0.97, 0.1, Color.RED),
-    ABSORBER("Absorber", 0.1, 0.0, Color.DARKGREEN),
+    AUDIO_PANEL("Audio panel", 0.1, 0.0, Color.DARKGREEN),
     WOOD("Wood", 0.95, 0.2, Color.BROWN),
     CUSTOM("Custom", 0.5, 0.5, Color.MAGENTA);
     
