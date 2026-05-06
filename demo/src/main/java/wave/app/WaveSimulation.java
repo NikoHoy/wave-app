@@ -37,8 +37,7 @@ public class WaveSimulation extends Application {
     private int gridSize = 30;
     // Wave parameters
     private double waveSpeed = 2.0;
-    // private double reflectionCoeff = 0.7; // 70% reflects
-    // private double transmissionCoeff = 0.3; // 30% passes through
+
 
     // Wall drawing mode
     private boolean wallDrawingMode = false;
@@ -46,7 +45,7 @@ public class WaveSimulation extends Application {
     private boolean isMusicPlayerOn = false;
 
     // wall type stuff, can be moved to a better place i think but im checking if it
-    // works first lmao
+    // works first
     private WallType currentWallType = WallType.DRYWALL;
     private ComboBox<WallType> wallTypeCombo;
     private Slider customReflectionSlider;
@@ -75,7 +74,7 @@ public class WaveSimulation extends Application {
             "-fx-text-fill: black;" +
             "-fx-background-radius: 8;" +
             "-fx-padding: 6 12;" +
-            "-fx-font-size: 12px;";
+            "-fx-font-size: 14px;";
 
 
     private WaveSource selectedSource;
@@ -90,7 +89,7 @@ public class WaveSimulation extends Application {
         main.setAlignment(Pos.CENTER);
 
         Label welcometxt = new Label("Welcome!");
-        // welcometxt.setStyle("-fx-font-size: 70px; -fx-font-weight: bold;");
+
         welcometxt.setFont(Font.font("Segoe Script", 70));
         welcometxt.setStyle("-fx-font-weight: bold;");
 
@@ -127,9 +126,6 @@ public class WaveSimulation extends Application {
         mapPane.setPrefSize(800, 600);
 
         drawGrid();
-
-        // Create some sample walls
-        // createSampleWalls();
 
         // Create control panel
         VBox leftPanel = new VBox();
@@ -226,12 +222,12 @@ public class WaveSimulation extends Application {
         sourceTittlePane.setContent(soundControls);
 
         leftPanel.getChildren().addAll(wallTitledPanel, sourceTittlePane);
-        // tabs.getTabs().add(waveSourceTab);
+
 
         // rightPanel
         VBox rightPanel = new VBox();
         rightPanel.setStyle("-fx-spacing: 40;-fx-padding: 10");
-        //TitledPane speakerOptions = new TitledPane();
+
         speakerOptions.setText("selected speaker");
         speakerOptions.setExpanded(false);
         VBox si = createSpeakerOptions();
@@ -256,10 +252,6 @@ public class WaveSimulation extends Application {
             }
         });
 
-
-
-        // Mouse click to add new wave source (when not in wall mode)
-        // mapPane.setOnMouseClicked(this::handleMapClick);
 
         // Layout
         BorderPane root = new BorderPane();
@@ -365,8 +357,7 @@ public class WaveSimulation extends Application {
         Label title = new Label("Speaker direction");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;");
 
-        // Image arrowImage = new
-        // Image("demo/src/main/java/wave/app/red-sticker-arrow-4.png");
+
         ImageView imageView = null;
         InputStream inputStream = getClass().getResourceAsStream("/images/red-sticker-arrow-4.png");
         if (inputStream != null) {
@@ -437,7 +428,7 @@ public class WaveSimulation extends Application {
         wallTypeCombo.setMaxWidth(Double.MAX_VALUE);
         wallTypeCombo.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-font-weight: bold");
 
-        // Custom wall properties (initially hidden)
+        // Custom wall properties
         customValuesLabel = new Label("Custom Properties:");
         customValuesLabel.setStyle("-fx-text-fill: white;");
         customValuesLabel.setVisible(false);
@@ -557,7 +548,7 @@ public class WaveSimulation extends Application {
         });
 
         // initialize buttons wallmode and dot mode
-        // Button wallModeBtn = new Button("Add Wall");
+
         Button addDotsButton = new Button("Add wave source");
 
 
@@ -587,7 +578,6 @@ public class WaveSimulation extends Application {
             });
         });
 
-        // nyt tuo poistaa aina äänilähteet ekana ja sitte vasta seinät
         Button undoBtn = new Button("undo last element");
         undoBtn.setMaxWidth(Double.MAX_VALUE);
         undoBtn.setOnAction(e -> {
@@ -677,11 +667,6 @@ public class WaveSimulation extends Application {
                     if (!mapPane.getChildren().contains(iv)) {
                         mapPane.getChildren().add(iv);
                     }
-                    // Label vol = new Label(Double.toString(volume));
-                    // vol.setTextFill(Color.WHITE);
-                    // vol.setStyle("-fx-font-size: 8;");
-                    // vol.setLayoutX(clickX);
-                    // vol.setLayoutY(clickY + 15);
 
                     MusicPlayer.setVolume(volume);
                     // System.out.println(volume);
@@ -870,7 +855,7 @@ public class WaveSimulation extends Application {
     private void addWall(double x1, double y1, double x2, double y2, WallType type) {
         Wall wall = new Wall(x1, y1, x2, y2, type);
         walls.add(wall);
-        // addedElementsStack.add(wall);
+
 
         // Visual representation with type-specific color
         Line line = new Line(x1, y1, x2, y2);
@@ -895,7 +880,7 @@ public class WaveSimulation extends Application {
             WallType type, double reflection, double transmission) {
         Wall wall = new Wall(x1, y1, x2, y2, type, reflection, transmission);
         walls.add(wall);
-        // addedElementsStack.add(wall);
+
 
         // Visual representation
         Line line = new Line(x1, y1, x2, y2);
@@ -954,7 +939,6 @@ public class WaveSimulation extends Application {
     private void addWaveSourceWithAngle(double x, double y, int angle) {
         WaveSource source = new WaveSource(x, y, angle, chosenAmplitude, chosenBass);
         sources.add(source);
-        // addedElementsStack.add(source);
 
         // Visual dot
         Circle dot = new Circle(x, y, 8);
@@ -1015,19 +999,14 @@ public class WaveSimulation extends Application {
             source.frameCounter++;
             if (source.frameCounter >= source.emitRate) {
                 source.frameCounter = 0;
-
-                // Emit waves in multiple directions for more realistic effect
-                // was this: for (int i = 0; i < 36; i++) {
                 for (int i = source.emitAngle - 12; i < source.emitAngle + 12; i++) {
-                    double angle = (i * 5) * Math.PI / 180; // was: double angle = (i * 10) * Math.PI / 180;
-                    // Directly add to concurrent queue - safe!
+                    double angle = (i * 5) * Math.PI / 180;
+
                     waveFronts.add(new WaveFront(
                             source.x, source.y, angle, source.amplitude, 0, source.bassAmp));
                 }
             }
         }
-
-        // Clear removal list
         wavesToRemove.clear();
 
         // Update existing wave fronts
@@ -1049,7 +1028,6 @@ public class WaveSimulation extends Application {
             boolean collided = false;
             for (Wall wall : walls) {
                 if (checkCollision(prevX, prevY, wave.x, wave.y, wall)) {
-                    // Handle collision - this will ADD new waves to the queue
                     handleCollision(wave, wall);
                     collided = true;
                     break;
@@ -1095,10 +1073,8 @@ public class WaveSimulation extends Application {
         double nx = wall.normalX;
         double ny = wall.normalY;
 
-        // Dot product
         double dot = dx * nx + dy * ny;
 
-        // Reflection vector: R = V - 2*(V·N)*N
         double reflectX = dx - 2 * dot * nx;
         double reflectY = dy - 2 * dot * ny;
         double reflectAngle = Math.atan2(reflectY, reflectX);
@@ -1131,14 +1107,9 @@ public class WaveSimulation extends Application {
     }
 
     private void renderWaves() {
-        // This runs on the animation thread, so we need Platform.runLater for UI
-        // updates
         Platform.runLater(() -> {
-            // Remove old wave circles
             mapPane.getChildren()
                     .removeIf(node -> node instanceof Circle && ((Circle) node).getFill() == Color.TRANSPARENT);
-
-            // Draw current wave fronts
 
             double amp = 0;
             for (WaveFront wave : waveFronts) {
